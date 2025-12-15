@@ -52,7 +52,7 @@ Includes PE precomputation, caching, and normalization.
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/<your-username>/mspe-graph-transformer.git
+git clone https://github.com/akozlovskaya/mspe-graph-transformer.git
 cd mspe-graph-transformer
 pip install -r requirements.txt
 ```
