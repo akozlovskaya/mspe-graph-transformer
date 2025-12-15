@@ -1,0 +1,12 @@
+# Main configuration file
+defaults:
+  - train: default
+  - model: default
+  - dataset: default
+  - pe: default
+
+# Global settings
+seed: 42
+device: cuda
+output_dir: ./outputs
+

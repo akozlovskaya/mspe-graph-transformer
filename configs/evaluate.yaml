@@ -1,0 +1,12 @@
+# Evaluation configuration
+checkpoint: null
+dataset: default
+model: default
+pe: default
+batch_size: 32
+metrics:
+  - accuracy
+  - f1_score
+  - long_range_analysis: true
+  - stability_test: true
+

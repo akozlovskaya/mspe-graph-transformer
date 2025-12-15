@@ -1,0 +1,12 @@
+# Default positional encoding configuration
+type: mspe
+node_pe:
+  enabled: true
+  types: [lap_pe, rwse, hks]
+  dim: 32
+relative_pe:
+  enabled: true
+  types: [spd, diffusion, effective_resistance]
+  max_distance: 10
+  num_buckets: 16
+

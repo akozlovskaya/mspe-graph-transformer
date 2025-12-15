@@ -1,0 +1,12 @@
+# Default training configuration
+name: default
+epochs: 100
+batch_size: 32
+learning_rate: 0.001
+optimizer: adam
+scheduler: cosine
+warmup_epochs: 10
+gradient_clip: 1.0
+save_every: 10
+eval_every: 5
+

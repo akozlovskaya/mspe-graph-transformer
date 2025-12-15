@@ -1,0 +1,6 @@
+# Default dataset configuration
+name: zinc
+root: ./data
+split: train
+precompute_pe: false
+

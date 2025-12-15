@@ -1,0 +1,10 @@
+# Default model configuration
+name: graphgps
+hidden_dim: 128
+num_layers: 6
+num_heads: 8
+dropout: 0.1
+use_mpnn: true
+use_global_attn: true
+pe_dim: 32
+
