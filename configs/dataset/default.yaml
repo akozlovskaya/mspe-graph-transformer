@@ -1,6 +1,6 @@
 # Default dataset configuration
 name: zinc
 root: ./data
-split: train
-precompute_pe: false
-
+task_type: regression
+target_idx: 0
+normalize_targets: true

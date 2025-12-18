@@ -1,12 +1,19 @@
 # Default positional encoding configuration
-type: mspe
-node_pe:
-  enabled: true
-  types: [lap_pe, rwse, hks]
+node:
+  type: combined  # lap, rwse, hks, role, combined
   dim: 32
-relative_pe:
-  enabled: true
-  types: [spd, diffusion, effective_resistance]
-  max_distance: 10
-  num_buckets: 16
+  lap:
+    k: 16
+    sign_invariant: flip
+  rwse:
+    scales: [1, 2, 4, 8, 16]
+  hks:
+    scales: [0.1, 0.5, 1.0, 2.0, 5.0]
+  role:
+    features: [degree, clustering, kcore]
 
+relative:
+  type: spd  # spd, bfs, diffusion, resistance, landmark
+  num_buckets: 32
+  max_distance: 10
+  symmetric: true

@@ -1,0 +1,6 @@
+# Peptides-struct (LRGB) dataset configuration
+name: peptides_struct
+root: ./data
+task_type: regression
+normalize_targets: true
+

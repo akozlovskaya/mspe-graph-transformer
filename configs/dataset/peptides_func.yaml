@@ -1,0 +1,6 @@
+# Peptides-func (LRGB) dataset configuration
+name: peptides_func
+root: ./data
+task_type: multilabel
+normalize_targets: false
+

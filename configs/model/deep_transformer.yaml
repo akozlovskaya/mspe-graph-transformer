@@ -1,0 +1,15 @@
+# Deep Graph Transformer (12-16 layers) configuration
+name: graph_transformer
+hidden_dim: 256
+num_layers: 12
+num_heads: 8
+dropout: 0.1
+ffn_dim: 512
+layer_norm: true
+pre_norm: true  # Pre-norm for stability in deep networks
+residual: true
+task: graph
+# Additional stability settings
+init_scale: 0.1
+layer_scale: true
+

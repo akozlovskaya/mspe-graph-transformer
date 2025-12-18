@@ -1,0 +1,6 @@
+# ZINC dataset configuration
+name: zinc
+root: ./data
+task_type: regression
+subset: True  # Use 12k subset
+

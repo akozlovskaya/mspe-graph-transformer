@@ -1,0 +1,55 @@
+# PE Ablation Experiment Configuration
+name: pe_ablation
+description: "Ablation study over positional encoding types"
+
+# Base configuration
+base_config:
+  dataset:
+    name: zinc
+    root: ./data
+    task_type: regression
+
+  model:
+    name: graph_transformer
+    hidden_dim: 256
+    num_layers: 6
+    num_heads: 8
+    dropout: 0.1
+
+  pe:
+    node:
+      type: combined
+      dim: 32
+    relative:
+      type: spd
+      num_buckets: 32
+
+  training:
+    epochs: 100
+    batch_size: 32
+    lr: 1e-4
+    weight_decay: 0.01
+    grad_clip: 1.0
+    early_stopping: 20
+
+  seed: 42
+
+# Sweep parameters
+sweep_type: grid
+parameters:
+  pe.node.type:
+    - none
+    - lap
+    - rwse
+    - hks
+    - combined
+  pe.relative.type:
+    - none
+    - spd
+    - diffusion
+
+tags:
+  - ablation
+  - pe
+  - zinc
+

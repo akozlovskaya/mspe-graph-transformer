@@ -1,0 +1,13 @@
+# GPS (Graph Propagation and Sampling) model configuration
+name: gps
+hidden_dim: 256
+num_layers: 10
+num_heads: 8
+dropout: 0.1
+ffn_dim: 512
+layer_norm: true
+pre_norm: true
+residual: true
+task: graph
+mpnn_type: gin  # gin, gcn, gat
+

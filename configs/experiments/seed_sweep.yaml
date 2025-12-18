@@ -1,0 +1,48 @@
+# Seed Sweep Configuration for Reproducibility Study
+name: seed_sweep
+description: "Reproducibility study with multiple seeds"
+
+base_config:
+  dataset:
+    name: zinc
+    root: ./data
+    task_type: regression
+
+  model:
+    name: graph_transformer
+    hidden_dim: 256
+    num_layers: 6
+    num_heads: 8
+    dropout: 0.1
+
+  pe:
+    node:
+      type: combined
+      dim: 32
+    relative:
+      type: spd
+      num_buckets: 32
+
+  training:
+    epochs: 100
+    batch_size: 32
+    lr: 1e-4
+    weight_decay: 0.01
+    grad_clip: 1.0
+    early_stopping: 20
+
+  seed: 42
+
+sweep_type: seed
+seeds:
+  - 42
+  - 123
+  - 456
+  - 789
+  - 1024
+
+tags:
+  - reproducibility
+  - seeds
+  - zinc
+

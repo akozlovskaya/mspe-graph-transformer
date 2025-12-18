@@ -1,0 +1,7 @@
+# QM9 dataset configuration
+name: qm9
+root: ./data
+task_type: regression
+target_idx: 0  # Target property index (0-18)
+normalize_targets: true
+

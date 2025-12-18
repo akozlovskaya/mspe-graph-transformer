@@ -1,0 +1,161 @@
+# Thesis Tables Mapping
+# Maps thesis table references to experiment outputs and generation commands
+
+tables:
+  # Chapter 4: Experiments
+  tab_4_1_main_results:
+    thesis_ref: "Table 4.1"
+    caption: "Main performance results across datasets"
+    datasets:
+      - zinc
+      - peptides_func
+      - peptides_struct
+      - ogbg_molhiv
+    experiments:
+      - "*_mspe"
+      - "*_baseline"
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables performance
+        - --metrics mae loss roc_auc
+        - --output_format latex
+    output: results/tables/main_results.tex
+
+  tab_4_2_pe_ablation:
+    thesis_ref: "Table 4.2"
+    caption: "Ablation study over positional encoding types"
+    datasets:
+      - zinc
+    experiments:
+      - pe_ablation/zinc_*
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables ablation
+        - --ablation_key node_pe
+        - --metrics mae
+    output: results/tables/pe_ablation.tex
+
+  tab_4_3_relative_pe_ablation:
+    thesis_ref: "Table 4.3"
+    caption: "Ablation study over relative PE types"
+    datasets:
+      - zinc
+    experiments:
+      - pe_ablation/zinc_*
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables ablation
+        - --ablation_key relative_pe
+        - --metrics mae
+    output: results/tables/relative_pe_ablation.tex
+
+  tab_4_4_long_range:
+    thesis_ref: "Table 4.4"
+    caption: "Long-range performance by distance bucket"
+    datasets:
+      - peptides_func
+    experiments:
+      - peptides_func_*
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables long_range
+        - --dataset peptides_func
+    output: results/tables/long_range.tex
+
+  tab_4_5_efficiency:
+    thesis_ref: "Table 4.5"
+    caption: "Efficiency comparison (parameters, runtime, memory)"
+    datasets:
+      - zinc
+    experiments:
+      - efficiency_study/*
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables efficiency
+        - --metrics mae
+    output: results/tables/efficiency.tex
+
+  tab_4_6_depth_study:
+    thesis_ref: "Table 4.6"
+    caption: "Effect of model depth on performance"
+    datasets:
+      - peptides_func
+    experiments:
+      - model_depth/*
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables performance
+        - --group_by num_layers node_pe
+    output: results/tables/depth_study.tex
+
+  tab_4_7_reproducibility:
+    thesis_ref: "Table 4.7"
+    caption: "Reproducibility study (5 seeds)"
+    datasets:
+      - zinc
+    experiments:
+      - seed_sweep/*
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables performance
+        - --metrics mae loss
+    output: results/tables/reproducibility.tex
+
+  # Appendix tables
+  tab_a1_hyperparameters:
+    thesis_ref: "Table A.1"
+    caption: "Hyperparameter settings for all experiments"
+    datasets: all
+    experiments: null
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables hyperparameters
+    output: results/tables/hyperparameters.tex
+
+  tab_a2_dataset_statistics:
+    thesis_ref: "Table A.2"
+    caption: "Dataset statistics"
+    datasets: all
+    experiments: null
+    generation:
+      script: scripts/make_tables.py
+      args:
+        - --tables dataset_stats
+    output: results/tables/dataset_stats.tex
+
+# Generation order
+generation_order:
+  - tab_4_1_main_results
+  - tab_4_2_pe_ablation
+  - tab_4_3_relative_pe_ablation
+  - tab_4_4_long_range
+  - tab_4_5_efficiency
+  - tab_4_6_depth_study
+  - tab_4_7_reproducibility
+  - tab_a1_hyperparameters
+  - tab_a2_dataset_statistics
+
+# Required experiments
+required_sweeps:
+  - configs/experiments/pe_ablation.yaml
+  - configs/experiments/model_depth.yaml
+  - configs/experiments/seed_sweep.yaml
+
+# LaTeX preamble required
+latex_requirements:
+  packages:
+    - booktabs
+    - multirow
+    - siunitx
+  commands: |
+    \newcommand{\best}[1]{\textbf{#1}}
+    \newcommand{\pmstd}[2]{#1 {\tiny $\pm$ #2}}
+

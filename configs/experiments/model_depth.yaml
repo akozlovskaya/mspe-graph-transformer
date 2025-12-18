@@ -1,0 +1,56 @@
+# Model Depth Experiment Configuration
+name: model_depth
+description: "Study of model depth scaling with multi-scale PE"
+
+base_config:
+  dataset:
+    name: peptides_func
+    root: ./data
+    task_type: multilabel
+
+  model:
+    name: graph_transformer
+    hidden_dim: 256
+    num_layers: 6
+    num_heads: 8
+    dropout: 0.1
+
+  pe:
+    node:
+      type: combined
+      dim: 64
+      lap:
+        k: 16
+        sign_invariant: flip
+      rwse:
+        scales: [1, 2, 4, 8, 16, 32]
+    relative:
+      type: spd
+      num_buckets: 32
+      max_distance: 10
+
+  training:
+    epochs: 200
+    batch_size: 64
+    lr: 3e-4
+    weight_decay: 0.01
+    grad_clip: 1.0
+    early_stopping: 50
+
+  seed: 42
+
+sweep_type: grid
+parameters:
+  model.num_layers:
+    - 2
+    - 4
+    - 6
+    - 8
+    - 12
+    - 16
+
+tags:
+  - ablation
+  - depth
+  - lrgb
+

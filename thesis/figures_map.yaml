@@ -1,0 +1,124 @@
+# Thesis Figures Mapping
+# Maps thesis figure references to experiment outputs and generation commands
+
+figures:
+  # Chapter 4: Experiments
+  fig_4_1_pe_comparison:
+    thesis_ref: "Figure 4.1"
+    caption: "Comparison of positional encoding types on ZINC"
+    type: bar_chart
+    experiments:
+      - pe_ablation/zinc_*
+    generation:
+      script: scripts/make_plots.py
+      args:
+        - --plots performance_comparison
+        - --dataset zinc
+        - --metric mae
+    output: results/figures/pe_comparison.pdf
+
+  fig_4_2_performance_vs_distance:
+    thesis_ref: "Figure 4.2"
+    caption: "Performance degradation with graph distance"
+    type: line_plot
+    experiments:
+      - peptides_func_mspe
+      - peptides_func_baseline
+    generation:
+      script: scripts/make_plots.py
+      args:
+        - --plots performance_vs_distance
+        - --dataset peptides_func
+        - --max_distance 20
+    output: results/figures/performance_vs_distance.pdf
+
+  fig_4_3_ablation_heatmap:
+    thesis_ref: "Figure 4.3"
+    caption: "PE ablation heatmap (Node PE × Relative PE)"
+    type: heatmap
+    experiments:
+      - pe_ablation/*
+    generation:
+      script: scripts/make_plots.py
+      args:
+        - --plots ablation_heatmap
+        - --metric mae
+    output: results/figures/ablation_heatmap.pdf
+
+  fig_4_4_depth_scaling:
+    thesis_ref: "Figure 4.4"
+    caption: "Model depth vs effective receptive field"
+    type: line_plot
+    experiments:
+      - model_depth/*
+    generation:
+      script: scripts/make_plots.py
+      args:
+        - --plots depth_vs_distance
+    output: results/figures/depth_scaling.pdf
+
+  fig_4_5_efficiency_tradeoff:
+    thesis_ref: "Figure 4.5"
+    caption: "Runtime vs accuracy trade-off"
+    type: scatter
+    experiments:
+      - efficiency_study/*
+    generation:
+      script: scripts/make_plots.py
+      args:
+        - --plots runtime_vs_accuracy
+        - --metric mae
+    output: results/figures/efficiency_tradeoff.pdf
+
+  fig_4_6_memory_scaling:
+    thesis_ref: "Figure 4.6"
+    caption: "Memory usage vs accuracy"
+    type: scatter
+    experiments:
+      - efficiency_study/*
+    generation:
+      script: scripts/make_plots.py
+      args:
+        - --plots memory_vs_accuracy
+    output: results/figures/memory_scaling.pdf
+
+  # Appendix figures
+  fig_a1_training_curves:
+    thesis_ref: "Figure A.1"
+    caption: "Training curves for main experiments"
+    type: line_plot
+    experiments:
+      - zinc_mspe
+      - peptides_func_mspe
+    generation:
+      script: scripts/make_plots.py
+      args:
+        - --plots training_curves
+    output: results/figures/training_curves.pdf
+
+  fig_a2_pe_visualization:
+    thesis_ref: "Figure A.2"
+    caption: "Visualization of positional encodings"
+    type: visualization
+    experiments: null
+    generation:
+      script: notebooks/pe_visualization.py
+    output: results/figures/pe_visualization.pdf
+
+# Generation order (dependencies)
+generation_order:
+  - fig_4_1_pe_comparison
+  - fig_4_2_performance_vs_distance
+  - fig_4_3_ablation_heatmap
+  - fig_4_4_depth_scaling
+  - fig_4_5_efficiency_tradeoff
+  - fig_4_6_memory_scaling
+  - fig_a1_training_curves
+  - fig_a2_pe_visualization
+
+# Required experiments for all figures
+required_sweeps:
+  - configs/experiments/pe_ablation.yaml
+  - configs/experiments/model_depth.yaml
+  - configs/experiments/seed_sweep.yaml
+

@@ -1,2 +1,0 @@
-"""Graph Transformer architectures."""
-

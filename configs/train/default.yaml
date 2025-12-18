@@ -1,12 +1,22 @@
 # Default training configuration
-name: default
 epochs: 100
 batch_size: 32
-learning_rate: 0.001
-optimizer: adam
-scheduler: cosine
-warmup_epochs: 10
-gradient_clip: 1.0
-save_every: 10
-eval_every: 5
+num_workers: 4
+grad_clip: 1.0
+mixed_precision: false
+log_every: 50
+metric_for_best: loss
+minimize_metric: true
+early_stopping: 20
 
+optimizer:
+  type: adamw
+  lr: 1e-4
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+  eps: 1e-8
+
+scheduler:
+  type: cosine_warmup
+  warmup_epochs: 10
+  min_lr: 1e-6

@@ -1,0 +1,21 @@
+# Multi-Scale Positional Encodings configuration
+node:
+  type: combined
+  dim: 64
+  lap:
+    k: 16
+    sign_invariant: flip
+    normalization: graph
+  rwse:
+    scales: [1, 2, 4, 8, 16, 32]
+  hks:
+    scales: [0.1, 0.5, 1.0, 2.0, 5.0, 10.0]
+  role:
+    features: [degree, clustering, kcore]
+
+relative:
+  type: spd
+  num_buckets: 32
+  max_distance: 10
+  symmetric: true
+

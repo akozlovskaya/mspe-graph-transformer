@@ -1,0 +1,5 @@
+# OGB molhiv dataset configuration
+name: ogbg-molhiv
+root: ./data
+task_type: classification
+

@@ -4,9 +4,44 @@ defaults:
   - model: default
   - dataset: default
   - pe: default
+  - optional experiments: null
+  - _self_
 
 # Global settings
 seed: 42
 device: cuda
+deterministic: true
 output_dir: ./outputs
+experiment_name: experiment
 
+# Experiment options
+resume: false
+run_long_range: true
+run_profiling: false
+
+# Logging
+log_dir: ./logs
+log_every: 50
+
+# Training settings (can be overridden)
+training:
+  epochs: 100
+  batch_size: 32
+  num_workers: 4
+  grad_clip: 1.0
+  mixed_precision: false
+  metric_for_best: loss
+  minimize_metric: true
+  early_stopping: 20
+
+  optimizer:
+    type: adamw
+    lr: 1e-4
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+    eps: 1e-8
+
+  scheduler:
+    type: cosine_warmup
+    warmup_epochs: 10
+    min_lr: 1e-6

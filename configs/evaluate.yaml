@@ -1,12 +1,22 @@
 # Evaluation configuration
-checkpoint: null
-dataset: default
-model: default
-pe: default
-batch_size: 32
-metrics:
-  - accuracy
-  - f1_score
-  - long_range_analysis: true
-  - stability_test: true
+defaults:
+  - model: default
+  - dataset: default
+  - pe: default
+  - _self_
 
+# Checkpoint to evaluate
+checkpoint: null
+
+# Evaluation settings
+eval_split: test  # test, val, or train
+batch_size: 32
+num_workers: 4
+
+# Output
+output_dir: ./eval_results
+save_predictions: false
+
+# Device
+device: cuda
+seed: 42
