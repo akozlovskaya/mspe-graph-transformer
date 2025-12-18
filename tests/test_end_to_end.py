@@ -149,7 +149,7 @@ class TestEndToEndPipeline:
             p.data.fill_(0)
 
         # Load
-        simple_model.load_state_dict(torch.load(ckpt_path))
+        simple_model.load_state_dict(torch.load(ckpt_path, weights_only=True))
 
         # Verify weights are restored
         for p in simple_model.parameters():

@@ -48,40 +48,45 @@ def get_model(
     """
     name = name.lower()
 
+    # Map to GraphTransformer expected argument names
+    use_relative_pe = relative_pe_dim is not None and relative_pe_dim > 0
+
     if name in ["graph_transformer", "gt"]:
         if task == "node":
             model = GraphTransformerForNodeClassification(
-                num_features=num_features,
-                num_classes=num_classes,
+                node_dim=num_features,
+                out_dim=num_classes,
                 hidden_dim=hidden_dim,
                 num_layers=num_layers,
                 num_heads=num_heads,
                 dropout=dropout,
-                node_pe_dim=node_pe_dim,
-                relative_pe_dim=relative_pe_dim,
+                node_pe_dim=node_pe_dim or 0,
+                use_relative_pe=use_relative_pe,
                 **kwargs,
             )
         else:
             model = GraphTransformerForGraphClassification(
-                num_features=num_features,
-                num_classes=num_classes,
+                node_dim=num_features,
+                out_dim=num_classes,
                 hidden_dim=hidden_dim,
                 num_layers=num_layers,
                 num_heads=num_heads,
                 dropout=dropout,
-                node_pe_dim=node_pe_dim,
-                relative_pe_dim=relative_pe_dim,
+                node_pe_dim=node_pe_dim or 0,
+                use_relative_pe=use_relative_pe,
                 **kwargs,
             )
     elif name == "gps":
-        model = GPSLayerStack(
-            num_features=num_features,
-            num_classes=num_classes,
+        # GPS uses GraphTransformer as well
+        model = GraphTransformerForGraphClassification(
+            node_dim=num_features,
+            out_dim=num_classes,
             hidden_dim=hidden_dim,
             num_layers=num_layers,
             num_heads=num_heads,
             dropout=dropout,
-            node_pe_dim=node_pe_dim,
+            node_pe_dim=node_pe_dim or 0,
+            use_relative_pe=use_relative_pe,
             **kwargs,
         )
     else:

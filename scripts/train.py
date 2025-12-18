@@ -10,9 +10,13 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 import torch
 from torch_geometric.loader import DataLoader
+from torch_geometric.data import Data, Batch
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Fix PyTorch 2.6+ safe globals for PyG
+torch.serialization.add_safe_globals([Data, Batch])
 
 from src.dataset import get_dataset
 from src.models import get_model

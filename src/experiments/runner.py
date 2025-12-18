@@ -138,20 +138,40 @@ class ExperimentRunner:
         training_cfg = self.config.training
         dataset_cfg = self.config.dataset
 
+        # Get optimizer config (can be string or dict)
+        opt_cfg = training_cfg.get("optimizer", {})
+        if isinstance(opt_cfg, dict):
+            optimizer_type = opt_cfg.get("type", "adamw")
+            lr = opt_cfg.get("lr", training_cfg.get("lr", 1e-4))
+            weight_decay = opt_cfg.get("weight_decay", training_cfg.get("weight_decay", 0.01))
+        else:
+            optimizer_type = opt_cfg
+            lr = training_cfg.get("lr", 1e-4)
+            weight_decay = training_cfg.get("weight_decay", 0.01)
+
         # Optimizer
         optimizer = get_optimizer(
             self.model,
-            optimizer_type=training_cfg.get("optimizer", "adamw"),
-            lr=training_cfg.get("lr", 1e-4),
-            weight_decay=training_cfg.get("weight_decay", 0.01),
+            optimizer_type=optimizer_type,
+            lr=lr,
+            weight_decay=weight_decay,
         )
+
+        # Get scheduler config (can be string or dict)
+        sched_cfg = training_cfg.get("scheduler", {})
+        if isinstance(sched_cfg, dict):
+            scheduler_type = sched_cfg.get("type", "cosine_warmup")
+            warmup_epochs = sched_cfg.get("warmup_epochs", training_cfg.get("warmup_epochs", 10))
+        else:
+            scheduler_type = sched_cfg
+            warmup_epochs = training_cfg.get("warmup_epochs", 10)
 
         # Scheduler
         scheduler = get_scheduler(
             optimizer,
-            scheduler_type=training_cfg.get("scheduler", "cosine_warmup"),
+            scheduler_type=scheduler_type,
             total_epochs=training_cfg.get("epochs", 100),
-            warmup_epochs=training_cfg.get("warmup_epochs", 10),
+            warmup_epochs=warmup_epochs,
         )
 
         # Loss and metrics
@@ -174,6 +194,17 @@ class ExperimentRunner:
         )
 
         return self.trainer
+
+    def _get_data_splits(self):
+        """Get train, val, test splits from dataset."""
+        splits = self.dataset.get_splits()
+        if isinstance(splits, dict):
+            train_data = splits.get("train")
+            val_data = splits.get("val")
+            test_data = splits.get("test")
+        else:
+            train_data, val_data, test_data = splits
+        return train_data, val_data, test_data
 
     def setup(self):
         """Setup all experiment components."""
@@ -211,7 +242,7 @@ class ExperimentRunner:
 
         try:
             # Get data splits
-            train_data, val_data, test_data = self.dataset.get_splits()
+            train_data, val_data, test_data = self._get_data_splits()
 
             training_cfg = self.config.training
             batch_size = training_cfg.get("batch_size", 32)
@@ -272,11 +303,11 @@ class ExperimentRunner:
                 self.trainer.load_checkpoint(str(best_checkpoint), load_optimizer=False)
 
             # Get test data
-            _, _, test_data = self.dataset.get_splits()
+            train_data, val_data, test_data = self._get_data_splits()
 
             if test_data is None:
                 logger.warning("No test data available, using validation set")
-                _, test_data, _ = self.dataset.get_splits()
+                test_data = val_data
 
             test_loader = DataLoader(
                 test_data,
@@ -329,9 +360,9 @@ class ExperimentRunner:
                 self.trainer.load_checkpoint(str(best_checkpoint), load_optimizer=False)
 
             # Get test data
-            _, _, test_data = self.dataset.get_splits()
+            train_data, val_data, test_data = self._get_data_splits()
             if test_data is None:
-                _, test_data, _ = self.dataset.get_splits()
+                test_data = val_data
 
             # Add distance info
             for data in test_data:
@@ -392,7 +423,7 @@ class ExperimentRunner:
             )
 
             # Get sample batch
-            train_data, _, _ = self.dataset.get_splits()
+            train_data, val_data, test_data = self._get_data_splits()
             sample_batch = train_data[0].to(self.device)
 
             with ProfilingContext(self.model, seed=self.config.seed):

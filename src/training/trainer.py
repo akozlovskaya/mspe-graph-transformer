@@ -371,7 +371,7 @@ class Trainer:
             path: Path to checkpoint file.
             load_optimizer: Whether to load optimizer state.
         """
-        checkpoint = torch.load(path, map_location=self.device)
+        checkpoint = torch.load(path, map_location=self.device, weights_only=False)
 
         self.model.load_state_dict(checkpoint["model"])
 

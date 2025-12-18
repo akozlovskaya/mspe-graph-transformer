@@ -298,7 +298,7 @@ If you use this repository in your research, please cite:
 ```bibtex
 @mastersthesis{kozlovskaya2025mspe,
   title={Multi-Scale Structural Positional Encodings for Graph Transformers},
-  author={Kozlovskaya, A.},
+  author={Kozlovskaya, Anastasia},
   year={2025},
   school={University}
 }

@@ -11,12 +11,12 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 setup(
     name="mspe-graph-transformer",
     version="0.1.0",
-    author="Your Name",
-    author_email="your.email@example.com",
+    author="Anastasia Kozlovskaya",
+    author_email="analeokoz@gmail.com",
     description="Multi-Scale Structural Positional Encodings for Graph Transformers",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/your-username/mspe-graph-transformer",
+    url="https://github.com/akozlovskaya/mspe-graph-transformer",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     classifiers=[

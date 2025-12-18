@@ -82,6 +82,10 @@ class NodePEIntegration(nn.Module):
         Returns:
             Integrated features [N, hidden_dim].
         """
+        # Ensure x is float (ZINC and other datasets may use Long indices)
+        if x.dtype in (torch.long, torch.int, torch.int32, torch.int64):
+            x = x.float()
+
         if node_pe is None or self.pe_dim == 0:
             # No PE, just project node features
             h = self.node_proj(x)

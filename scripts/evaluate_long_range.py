@@ -9,9 +9,13 @@ from typing import Optional, Dict, Any
 
 import torch
 from torch_geometric.loader import DataLoader
+from torch_geometric.data import Data, Batch
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Fix PyTorch 2.6+ safe globals for PyG
+torch.serialization.add_safe_globals([Data, Batch])
 
 from src.dataset import get_dataset
 from src.models import get_model
@@ -54,7 +58,7 @@ def load_model_from_checkpoint(
     """
     model = get_model(**model_config)
 
-    checkpoint = torch.load(checkpoint_path, map_location=device)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint["model"])
     model = model.to(device)
     model.eval()

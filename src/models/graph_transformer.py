@@ -164,6 +164,10 @@ class GraphTransformer(nn.Module):
                 - Node task: [N, out_dim]
         """
         x = data.x
+        # Ensure x is float for linear layers
+        if x.dtype in (torch.long, torch.int, torch.int32, torch.int64):
+            x = x.float()
+        
         edge_index = data.edge_index
         batch = getattr(data, "batch", None)
 
@@ -227,6 +231,10 @@ class GraphTransformer(nn.Module):
             Node embeddings [N, hidden_dim].
         """
         x = data.x
+        # Ensure x is float for linear layers
+        if x.dtype in (torch.long, torch.int, torch.int32, torch.int64):
+            x = x.float()
+        
         edge_index = data.edge_index
         batch = getattr(data, "batch", None)
 
