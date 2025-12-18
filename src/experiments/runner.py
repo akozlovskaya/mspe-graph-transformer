@@ -352,6 +352,20 @@ class ExperimentRunner:
         logger.info("=" * 60)
 
         try:
+            # Check if task is suitable for long-range evaluation
+            # Long-range evaluation is designed for node-level or edge-level tasks
+            model_task = self.config.model.get("task", "graph")
+            if model_task == "graph":
+                logger.info(
+                    "Skipping long-range evaluation: not applicable for graph-level tasks. "
+                    "Long-range evaluation is designed for node-level or edge-level predictions."
+                )
+                self.results["long_range"] = {
+                    "status": "skipped",
+                    "reason": "graph-level task",
+                }
+                return self.results["long_range"]
+
             from src.evaluation import LongRangeEvaluator, add_distance_info_to_data
 
             # Load best checkpoint

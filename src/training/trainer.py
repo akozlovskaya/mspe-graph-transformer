@@ -123,11 +123,18 @@ class Trainer:
     def _get_target(self, batch) -> torch.Tensor:
         """Extract target from batch based on task type."""
         if hasattr(batch, "y"):
-            return batch.y
+            target = batch.y
         elif hasattr(batch, "target"):
-            return batch.target
+            target = batch.target
         else:
             raise ValueError("Batch has no target attribute (y or target)")
+        
+        # Ensure target has correct shape for loss computation
+        # For regression with single output, target should be [batch_size, 1]
+        if self.task_type == "regression" and target.dim() == 1:
+            target = target.unsqueeze(-1)
+        
+        return target
 
     def train_epoch(self, loader: DataLoader) -> Dict[str, float]:
         """
