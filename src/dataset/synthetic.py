@@ -10,7 +10,47 @@ from torch_geometric.utils import from_networkx
 
 from .base import BaseGraphDataset, InMemoryGraphDataset
 from .transforms import CompositeTransform
-from src.evaluation.distance_metrics import compute_shortest_path_distances
+
+# Import distance computation function (lazy import to avoid circular dependencies)
+def _get_distance_computer():
+    """Get distance computation function."""
+    try:
+        from src.evaluation.distance_metrics import compute_shortest_path_distances
+        return compute_shortest_path_distances
+    except ImportError:
+        # Fallback: implement simple BFS-based distance computation
+        from collections import deque
+        def compute_shortest_path_distances(edge_index, num_nodes, max_distance=20):
+            """Compute shortest-path distances using BFS."""
+            adj_list = [[] for _ in range(num_nodes)]
+            edge_index_np = edge_index.cpu().numpy()
+            
+            for i in range(edge_index.size(1)):
+                src, dst = edge_index_np[0, i], edge_index_np[1, i]
+                adj_list[src].append(dst)
+                adj_list[dst].append(src)
+            
+            distances = torch.full((num_nodes, num_nodes), -1, dtype=torch.long)
+            
+            for source in range(num_nodes):
+                dist = [-1] * num_nodes
+                dist[source] = 0
+                queue = deque([source])
+                
+                while queue:
+                    node = queue.popleft()
+                    if dist[node] >= max_distance:
+                        continue
+                    
+                    for neighbor in adj_list[node]:
+                        if dist[neighbor] == -1:
+                            dist[neighbor] = dist[node] + 1
+                            queue.append(neighbor)
+                
+                distances[source] = torch.tensor(dist, dtype=torch.long)
+            
+            return distances
+        return compute_shortest_path_distances
 
 
 class SyntheticDataset(BaseGraphDataset):
@@ -274,7 +314,8 @@ class SyntheticDataset(BaseGraphDataset):
             num_pairs = self.task_params.get("num_pairs", min(100, data.num_nodes * (data.num_nodes - 1) // 2))
             
             # Compute shortest path distances
-            distances = compute_shortest_path_distances(
+            compute_distances = _get_distance_computer()
+            distances = compute_distances(
                 data.edge_index, data.num_nodes, max_distance=20
             )
             
@@ -309,7 +350,8 @@ class SyntheticDataset(BaseGraphDataset):
             num_pairs = self.task_params.get("num_pairs", min(100, data.num_nodes * (data.num_nodes - 1) // 2))
             
             # Compute shortest path distances
-            distances = compute_shortest_path_distances(
+            compute_distances = _get_distance_computer()
+            distances = compute_distances(
                 data.edge_index, data.num_nodes, max_distance=20
             )
             
@@ -352,7 +394,8 @@ class SyntheticDataset(BaseGraphDataset):
                 try:
                     centrality = nx.closeness_centrality(g)
                     center = max(centrality, key=centrality.get)
-                    distances_to_center = compute_shortest_path_distances(
+                    compute_distances = _get_distance_computer()
+                    distances_to_center = compute_distances(
                         data.edge_index, data.num_nodes, max_distance=20
                     )[center]
                     
@@ -389,7 +432,8 @@ class SyntheticDataset(BaseGraphDataset):
             else:
                 # Global signal: based on distance to a landmark node
                 landmark = rng.integers(0, data.num_nodes)
-                distances = compute_shortest_path_distances(
+                compute_distances = _get_distance_computer()
+                distances = compute_distances(
                     data.edge_index, data.num_nodes, max_distance=20
                 )[landmark]
                 labels = (distances >= global_threshold).long()

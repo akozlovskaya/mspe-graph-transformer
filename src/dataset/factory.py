@@ -40,6 +40,8 @@ def get_dataset(
             - "synthetic_barabasi_albert": Barabási–Albert graphs
             - "synthetic_watts_strogatz": Watts–Strogatz graphs
             - "synthetic_erdos_renyi": Erdős–Rényi graphs
+            - "synthetic_sbm": Stochastic Block Model graphs
+            - "synthetic_random_geometric": Random geometric graphs
         root: Root directory for dataset storage.
         pe_config: Configuration for positional encodings. Format:
             {
