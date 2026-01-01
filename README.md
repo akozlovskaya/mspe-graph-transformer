@@ -48,6 +48,13 @@ particularly for long-range dependencies in molecular and structural graphs.
 - Efficiency profiling
 - Thesis-ready result generation
 
+### Synthetic Graph Benchmarks
+- **Controlled evaluation** of PEs under known graph structures
+- **6 benchmark tasks**: Pairwise distance, structural role, diffusion source, etc.
+- **9 graph generators**: ER, WS, BA, SBM, geometric, regular, grid, ring, tree
+- **Cross-graph generalization** and size extrapolation experiments
+- **Fully reproducible** with deterministic generation
+
 ---
 
 ## 📦 Installation
@@ -78,13 +85,16 @@ mspe-graph-transformer/
 ├── configs/                    # Hydra configuration files
 │   ├── config.yaml            # Main config
 │   ├── dataset/               # Dataset configs
+│   │   └── synthetic/        # Synthetic benchmark configs
 │   ├── model/                 # Model configs
 │   ├── pe/                    # PE configs
 │   ├── train/                 # Training configs
 │   └── experiments/           # Predefined experiments
+│       └── synthetic/         # Synthetic experiment configs
 ├── data/                      # Data directory (auto-created)
 ├── src/
 │   ├── dataset/               # Dataset loaders and transforms
+│   │   └── synthetic.py      # Synthetic graph generators and tasks
 │   ├── pe/
 │   │   ├── node/             # Node-wise PEs (LapPE, RWSE, HKS)
 │   │   └── relative/         # Relative PEs (SPD, Diffusion)
@@ -158,6 +168,22 @@ python scripts/make_tables.py --tables all --output_format latex
 python scripts/make_plots.py --plots all --output_dir results/figures
 ```
 
+### 5. Synthetic Graph Benchmarks
+
+```bash
+# Pairwise distance classification (Task A)
+python scripts/train.py dataset=synthetic/pairwise_distance pe=mspe
+
+# Structural role classification (Task C)
+python scripts/train.py dataset=synthetic/structural_role pe.node.type=lap
+
+# PE capacity stress test
+python scripts/run_sweep.py --sweep configs/experiments/synthetic/pe_capacity.yaml
+
+# Cross-graph generalization
+python scripts/run_experiment.py experiment=synthetic/cross_graph_generalization
+```
+
 ---
 
 ## 🔬 Reproducing Thesis Results
@@ -200,9 +226,30 @@ python scripts/run_sweep.py --sweep configs/experiments/seed_sweep.yaml
 python scripts/validate_thesis_pipeline.py
 ```
 
+### Synthetic Benchmark Experiments
+
+```bash
+# Pairwise distance classification with different PEs
+python scripts/run_sweep.py --sweep configs/experiments/synthetic/pairwise_distance.yaml
+
+# Structural role classification
+python scripts/run_sweep.py --sweep configs/experiments/synthetic/structural_role.yaml
+
+# PE capacity stress test (varying PE dimensions)
+python scripts/run_sweep.py --sweep configs/experiments/synthetic/pe_capacity.yaml
+
+# Cross-graph generalization (train on ER, test on WS)
+python scripts/run_experiment.py experiment=synthetic/cross_graph_generalization
+
+# Size extrapolation (train on small, test on large)
+python scripts/run_experiment.py experiment=synthetic/size_extrapolation
+```
+
 ---
 
 ## 🧪 Supported Datasets
+
+### Real-World Datasets
 
 | Dataset | Type | Task | Graphs | Nodes (avg) |
 |---------|------|------|--------|-------------|
@@ -214,6 +261,32 @@ python scripts/validate_thesis_pipeline.py
 | ogbg-molpcba | Molecular | Multi-label | 438K | 26 |
 | PascalVOC-SP | Vision | Multi-class | 11K | 479 |
 | CIFAR10-SP | Vision | Multi-class | 60K | 118 |
+
+### Synthetic Graph Benchmarks
+
+Synthetic datasets for controlled PE evaluation under known graph structures:
+
+| Graph Type | Description | Use Case |
+|------------|-------------|----------|
+| **Erdős–Rényi** | Random graphs with edge probability p | Baseline connectivity |
+| **Watts–Strogatz** | Small-world networks | Long-range dependencies |
+| **Barabási–Albert** | Scale-free networks | Degree distribution effects |
+| **SBM** | Stochastic Block Model | Community structure |
+| **Random Geometric** | Spatial graphs | Distance-based tasks |
+| **Regular** | Regular graphs | Structural role tasks |
+| **Grid** | 2D/3D grids | Spatial reasoning |
+| **Ring** | Cycle graphs | Simple topology |
+| **Tree** | Balanced trees | Hierarchical structure |
+
+**Benchmark Tasks:**
+- **Task A**: Pairwise Distance Classification — classify if distance ≥ threshold
+- **Task B**: Distance Regression — predict exact shortest-path distance
+- **Task C**: Structural Role Classification — classify nodes by structural role
+- **Task D**: Local vs Global Signal — predict from local (degree) or global (distance) signals
+- **Task E**: Diffusion Source Identification — identify diffusion source node
+- **Task F**: PE Capacity Stress Test — test PE capacity with varying dimensionality
+
+See [`src/dataset/synthetic/README.md`](src/dataset/synthetic/README.md) for detailed documentation.
 
 ---
 
