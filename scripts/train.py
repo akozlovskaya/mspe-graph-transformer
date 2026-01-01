@@ -71,11 +71,16 @@ def create_dataloaders(
     # PE configuration
     pe_config = OmegaConf.to_container(cfg.get("pe", {}), resolve=True)
 
+    # Get seed from config (for synthetic datasets)
+    seed = cfg.get("seed", 42)
+    
     # Load dataset
     dataset = get_dataset(
         name=cfg.dataset.name,
         root=cfg.dataset.get("root", "data/"),
         pe_config=pe_config if pe_config else None,
+        seed=seed,
+        **OmegaConf.to_container(cfg.get("dataset", {}), resolve=True),
     )
 
     # Get splits

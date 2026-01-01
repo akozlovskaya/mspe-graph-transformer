@@ -1,0 +1,16 @@
+# Synthetic dataset: Structural Role Classification (Task C)
+name: synthetic_sbm
+root: ./data
+task_type: classification
+task: structural_role
+task_params: {}
+graph_params:
+  n: 100
+  n_blocks: 3
+  p_in: 0.3
+  p_out: 0.05
+num_graphs: 1000
+num_classes: 3
+seed: 42
+use_node_features: false  # Structure-only task
+

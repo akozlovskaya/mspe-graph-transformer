@@ -1,0 +1,16 @@
+# Synthetic dataset: Diffusion Source Identification (Task E)
+name: synthetic_erdos_renyi
+root: ./data
+task_type: classification
+task: diffusion_source
+task_params:
+  diffusion_steps: 5
+  diffusion_rate: 0.5
+graph_params:
+  n: 30
+  p: 0.3
+num_graphs: 1000
+num_classes: 30  # Number of nodes (source node ID)
+seed: 42
+use_node_features: false  # Will be overridden by diffusion states
+

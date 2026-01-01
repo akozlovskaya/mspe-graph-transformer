@@ -1,0 +1,30 @@
+# Experiment: Pairwise Distance Classification with different PEs
+# @package _global_
+
+defaults:
+  - override /dataset: synthetic/pairwise_distance
+  - override /model: default
+  - override /pe: default
+  - override /train: default
+
+sweep:
+  pe:
+    - node.type: lap
+      node.dim: 16
+      relative.type: spd
+    - node.type: rwse
+      node.dim: 16
+      relative.type: spd
+    - node.type: combined
+      node.dim: 32
+      relative.type: spd
+    - node.type: null
+      relative.type: spd
+    - node.type: null
+      relative.type: null
+
+training:
+  epochs: 50
+  batch_size: 32
+  lr: 1e-3
+

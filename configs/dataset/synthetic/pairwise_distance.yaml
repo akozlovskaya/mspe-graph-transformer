@@ -1,0 +1,16 @@
+# Synthetic dataset: Pairwise Distance Classification (Task A)
+name: synthetic_erdos_renyi
+root: ./data
+task_type: classification
+task: pairwise_distance_classification
+task_params:
+  distance_threshold: 3
+  num_pairs: 100
+graph_params:
+  n: 50
+  p: 0.3
+num_graphs: 1000
+num_classes: 2
+seed: 42
+use_node_features: true
+

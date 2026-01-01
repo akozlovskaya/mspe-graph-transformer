@@ -1,0 +1,13 @@
+# Synthetic dataset: Random Geometric Graph
+name: synthetic_random_geometric
+root: ./data
+task_type: regression
+graph_params:
+  n: 50
+  radius: 0.2
+  dim: 2
+num_graphs: 1000
+num_classes: 1
+seed: 42
+use_node_features: true
+

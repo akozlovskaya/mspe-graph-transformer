@@ -1,0 +1,28 @@
+# Experiment: Structural Role Classification (SBM)
+# @package _global_
+
+defaults:
+  - override /dataset: synthetic/structural_role
+  - override /model: default
+  - override /pe: default
+  - override /train: default
+
+sweep:
+  pe:
+    - node.type: lap
+      node.dim: 16
+      relative.type: null
+    - node.type: role
+      node.dim: 16
+      relative.type: null
+    - node.type: combined
+      node.dim: 32
+      relative.type: null
+    - node.type: null
+      relative.type: null
+
+training:
+  epochs: 50
+  batch_size: 32
+  lr: 1e-3
+

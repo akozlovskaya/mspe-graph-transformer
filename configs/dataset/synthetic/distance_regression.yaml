@@ -1,0 +1,15 @@
+# Synthetic dataset: Distance Regression (Task B)
+name: synthetic_erdos_renyi
+root: ./data
+task_type: regression
+task: distance_regression
+task_params:
+  num_pairs: 100
+graph_params:
+  n: 50
+  p: 0.3
+num_graphs: 1000
+num_classes: 1
+seed: 42
+use_node_features: true
+

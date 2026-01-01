@@ -1,0 +1,32 @@
+# Experiment: PE Capacity Stress Test
+# Sweep PE dimensionality to test capacity
+# @package _global_
+
+defaults:
+  - override /dataset: synthetic/pe_capacity
+  - override /model: default
+  - override /pe: default
+  - override /train: default
+
+sweep:
+  pe:
+    - node.type: lap
+      node.lap.k: 8
+      node.dim: 16
+      relative.type: spd
+    - node.type: lap
+      node.lap.k: 16
+      node.dim: 32
+      relative.type: spd
+    - node.type: lap
+      node.lap.k: 32
+      node.dim: 64
+      relative.type: spd
+    - node.type: null
+      relative.type: spd
+
+training:
+  epochs: 50
+  batch_size: 32
+  lr: 1e-3
+

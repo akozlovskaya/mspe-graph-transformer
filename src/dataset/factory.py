@@ -167,7 +167,11 @@ def get_dataset(
             pe_config=pe_config,
             num_classes=kwargs.get("num_classes", 1),
             task_type=kwargs.get("task_type", "regression"),
-            **{k: v for k, v in kwargs.items() if k not in ["num_graphs", "graph_params", "num_classes", "task_type"]},
+            task=kwargs.get("task", None),
+            task_params=kwargs.get("task_params", {}),
+            seed=kwargs.get("seed", 42),
+            use_node_features=kwargs.get("use_node_features", True),
+            **{k: v for k, v in kwargs.items() if k not in ["num_graphs", "graph_params", "num_classes", "task_type", "task", "task_params", "seed", "use_node_features"]},
         )
 
     else:
@@ -209,6 +213,8 @@ def list_available_datasets() -> Dict[str, list]:
             "synthetic_barabasi_albert",
             "synthetic_watts_strogatz",
             "synthetic_erdos_renyi",
+            "synthetic_sbm",
+            "synthetic_random_geometric",
         ],
     }
 

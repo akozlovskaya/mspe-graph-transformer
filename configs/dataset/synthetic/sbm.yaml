@@ -1,0 +1,14 @@
+# Synthetic dataset: Stochastic Block Model
+name: synthetic_sbm
+root: ./data
+task_type: regression
+graph_params:
+  n: 100
+  n_blocks: 3
+  p_in: 0.3
+  p_out: 0.05
+num_graphs: 1000
+num_classes: 1
+seed: 42
+use_node_features: true
+

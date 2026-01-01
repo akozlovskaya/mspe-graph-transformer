@@ -1,0 +1,18 @@
+# Synthetic dataset: Local vs Global Signal (Task D)
+name: synthetic_watts_strogatz
+root: ./data
+task_type: classification
+task: local_vs_global
+task_params:
+  use_local: true
+  local_threshold: 3
+  global_threshold: 5
+graph_params:
+  n: 50
+  k: 4
+  p: 0.3
+num_graphs: 1000
+num_classes: 2
+seed: 42
+use_node_features: true
+

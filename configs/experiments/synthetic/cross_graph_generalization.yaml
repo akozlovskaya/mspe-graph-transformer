@@ -1,0 +1,41 @@
+# Experiment: Cross-Graph Generalization
+# Train on one graph type, test on another
+# @package _global_
+
+defaults:
+  - override /model: default
+  - override /pe: mspe
+  - override /train: default
+
+# Train on ER graphs
+train_dataset:
+  name: synthetic_erdos_renyi
+  task: pairwise_distance_classification
+  task_params:
+    distance_threshold: 3
+    num_pairs: 100
+  graph_params:
+    n: 50
+    p: 0.3
+  num_graphs: 800
+  seed: 42
+
+# Test on WS graphs
+test_dataset:
+  name: synthetic_watts_strogatz
+  task: pairwise_distance_classification
+  task_params:
+    distance_threshold: 3
+    num_pairs: 100
+  graph_params:
+    n: 50
+    k: 4
+    p: 0.3
+  num_graphs: 200
+  seed: 4242
+
+training:
+  epochs: 50
+  batch_size: 32
+  lr: 1e-3
+

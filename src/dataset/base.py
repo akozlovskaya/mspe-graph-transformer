@@ -54,7 +54,7 @@ class BaseGraphDataset(ABC):
         """Number of classes (1 for regression)."""
         pass
 
-    def get_splits(self, splits: str = "official") -> Dict[str, Dataset]:
+    def get_splits(self, splits: str = "official") -> Tuple[Dataset, Dataset, Dataset]:
         """
         Get dataset splits.
 
@@ -62,10 +62,10 @@ class BaseGraphDataset(ABC):
             splits: Split type ("official" or "random")
 
         Returns:
-            Dictionary with 'train', 'val', 'test' keys
+            Tuple of (train_dataset, val_dataset, test_dataset)
         """
         train, val, test = self.load()
-        return {"train": train, "val": val, "test": test}
+        return train, val, test
 
 
 class InMemoryGraphDataset(Dataset):
