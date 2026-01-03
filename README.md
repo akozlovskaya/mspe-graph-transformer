@@ -1,6 +1,6 @@
 # Multi-Scale Structural Positional Encodings for Graph Transformers
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.0+](https://img.shields.io/badge/pytorch-2.0+-red.svg)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -65,7 +65,7 @@ git clone https://github.com/akozlovskaya/mspe-graph-transformer.git
 cd mspe-graph-transformer
 
 # Create environment (recommended)
-conda create -n mspe python=3.10
+conda create -n mspe python=3.11
 conda activate mspe
 
 # Install dependencies
