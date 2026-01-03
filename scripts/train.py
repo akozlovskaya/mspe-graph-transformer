@@ -71,20 +71,34 @@ def create_dataloaders(
     # PE configuration
     pe_config = OmegaConf.to_container(cfg.get("pe", {}), resolve=True)
 
-    # Get seed from config (for synthetic datasets)
-    seed = cfg.get("seed", 42)
+    # Get dataset config and exclude 'name' and 'root' to avoid conflicts
+    dataset_cfg = OmegaConf.to_container(cfg.get("dataset", {}), resolve=True)
+    dataset_kwargs = {k: v for k, v in dataset_cfg.items() if k not in ["name", "root"]}
+    
+    # Add seed only for synthetic datasets
+    dataset_name = cfg.dataset.name.lower()
+    if dataset_name.startswith("synthetic_"):
+        seed = cfg.get("seed", 42)
+        dataset_kwargs["seed"] = seed
     
     # Load dataset
     dataset = get_dataset(
         name=cfg.dataset.name,
         root=cfg.dataset.get("root", "data/"),
         pe_config=pe_config if pe_config else None,
-        seed=seed,
-        **OmegaConf.to_container(cfg.get("dataset", {}), resolve=True),
+        **dataset_kwargs,
     )
 
     # Get splits
     train_data, val_data, test_data = dataset.get_splits()
+
+    # Validate splits
+    if train_data is None:
+        raise ValueError("Train dataset is None. Cannot create training dataloader.")
+    if val_data is None:
+        raise ValueError("Validation dataset is None. Cannot create validation dataloader.")
+    if test_data is None:
+        raise ValueError("Test dataset is None. Cannot create test dataloader.")
 
     # Create dataloaders
     batch_size = cfg.training.get("batch_size", 32)
@@ -112,13 +126,12 @@ def create_dataloaders(
         shuffle=False,
         num_workers=num_workers,
         pin_memory=True,
-    ) if test_data is not None else None
+    )
 
     logger.info(f"Dataset: {cfg.dataset.name}")
     logger.info(f"Train samples: {len(train_data)}")
     logger.info(f"Val samples: {len(val_data)}")
-    if test_data:
-        logger.info(f"Test samples: {len(test_data)}")
+    logger.info(f"Test samples: {len(test_data)}")
 
     return train_loader, val_loader, test_loader, dataset
 
@@ -234,29 +247,28 @@ def main(cfg: DictConfig) -> None:
     )
 
     # Final evaluation on test set
-    if test_loader is not None:
-        logger.info("=" * 60)
-        logger.info("Final evaluation on test set")
-        logger.info("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Final evaluation on test set")
+    logger.info("=" * 60)
 
-        # Load best model
-        best_checkpoint = log_dir / "checkpoints" / "best.pt"
-        if best_checkpoint.exists():
-            trainer.load_checkpoint(str(best_checkpoint), load_optimizer=False)
+    # Load best model
+    best_checkpoint = log_dir / "checkpoints" / "best.pt"
+    if best_checkpoint.exists():
+        trainer.load_checkpoint(str(best_checkpoint), load_optimizer=False)
 
-        test_metrics = trainer.eval_epoch(test_loader)
-        logger.info(f"Test metrics: {test_metrics}")
+    test_metrics = trainer.eval_epoch(test_loader)
+    logger.info(f"Test metrics: {test_metrics}")
 
-        # Save test results
-        import json
-        test_results = {
-            "test_metrics": test_metrics,
-            "best_epoch": trainer.best_epoch,
-            "best_val_metric": trainer.best_metric,
-            "seed": seed,
-        }
-        with open(log_dir / "test_results.json", "w") as f:
-            json.dump(test_results, f, indent=2)
+    # Save test results
+    import json
+    test_results = {
+        "test_metrics": test_metrics,
+        "best_epoch": trainer.best_epoch,
+        "best_val_metric": trainer.best_metric,
+        "seed": seed,
+    }
+    with open(log_dir / "test_results.json", "w") as f:
+        json.dump(test_results, f, indent=2)
 
     logger.info("=" * 60)
     logger.info("Training completed!")

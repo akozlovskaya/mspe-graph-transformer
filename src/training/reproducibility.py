@@ -23,13 +23,17 @@ def set_seed(seed: int = 42, deterministic: bool = True):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    
+    # Only set CUDA seeds if CUDA is available
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
 
     if deterministic:
-        # Enable deterministic operations
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
+        # Enable deterministic operations (only if CUDA is available)
+        if torch.cuda.is_available():
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
 
         # PyTorch 1.8+ deterministic algorithms
         if hasattr(torch, "use_deterministic_algorithms"):
@@ -64,12 +68,24 @@ def get_device(device: Optional[str] = None) -> torch.device:
             device = "cuda"
         else:
             device = "cpu"
+    else:
+        # Check if user requested CUDA but it's not available
+        if device.startswith("cuda") and not torch.cuda.is_available():
+            logger.warning(
+                f"CUDA requested but not available. "
+                f"PyTorch was not compiled with CUDA support. "
+                f"Falling back to CPU."
+            )
+            device = "cpu"
 
     device = torch.device(device)
 
-    if device.type == "cuda":
-        logger.info(f"Using GPU: {torch.cuda.get_device_name(device)}")
-        logger.info(f"GPU Memory: {torch.cuda.get_device_properties(device).total_memory / 1e9:.1f} GB")
+    if device.type == "cuda" and torch.cuda.is_available():
+        try:
+            logger.info(f"Using GPU: {torch.cuda.get_device_name(device)}")
+            logger.info(f"GPU Memory: {torch.cuda.get_device_properties(device).total_memory / 1e9:.1f} GB")
+        except Exception as e:
+            logger.warning(f"Could not get GPU info: {e}. Using GPU anyway.")
     else:
         logger.info("Using CPU")
 

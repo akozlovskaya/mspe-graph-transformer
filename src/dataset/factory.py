@@ -77,85 +77,112 @@ def get_dataset(
     """
     name_lower = name.lower()
 
+    # Define allowed parameters for each dataset type
+    # Base parameters accepted by all datasets (via BaseGraphDataset)
+    base_params = {"transform", "pre_transform"}
+    
+    # Dataset-specific allowed parameters
+    zinc_allowed = base_params | {"subset"}
+    qm9_allowed = base_params | {"target_idx", "normalize_targets"}
+    lrgb_allowed = base_params  # Only base params
+    ogb_allowed = base_params  # Only base params
+    pcqm_allowed = base_params | {"subset"}
+
     # ZINC
     if name_lower == "zinc":
+        # Exclude 'subset' from kwargs since it's passed explicitly
+        zinc_kwargs = {k: v for k, v in kwargs.items() 
+                      if k in zinc_allowed and k != "subset"}
         return ZINCDataset(
             root=root,
             pe_config=pe_config,
             subset=kwargs.get("subset", True),
-            **{k: v for k, v in kwargs.items() if k != "subset"},
+            **zinc_kwargs,
         )
 
     # QM9
     elif name_lower == "qm9":
+        # Exclude 'target_idx' and 'normalize_targets' from kwargs since they're passed explicitly
+        qm9_kwargs = {k: v for k, v in kwargs.items() 
+                     if k in qm9_allowed and k not in ["target_idx", "normalize_targets"]}
         return QM9Dataset(
             root=root,
             pe_config=pe_config,
             target_idx=kwargs.get("target_idx", 0),
             normalize_targets=kwargs.get("normalize_targets", True),
-            **{k: v for k, v in kwargs.items() if k not in ["target_idx", "normalize_targets"]},
+            **qm9_kwargs,
         )
 
     # LRGB datasets
-    elif name_lower == "peptides_func":
+    lrgb_kwargs = {k: v for k, v in kwargs.items() if k in lrgb_allowed}
+    
+    if name_lower == "peptides_func":
         return LRGBDataset(
             root=root,
             name="Peptides-func",
             pe_config=pe_config,
-            **kwargs,
+            **lrgb_kwargs,
         )
     elif name_lower == "peptides_struct":
         return LRGBDataset(
             root=root,
             name="Peptides-struct",
             pe_config=pe_config,
-            **kwargs,
+            **lrgb_kwargs,
         )
     elif name_lower == "pascalvoc_sp":
         return LRGBDataset(
             root=root,
             name="PascalVOC-SP",
             pe_config=pe_config,
-            **kwargs,
+            **lrgb_kwargs,
         )
     elif name_lower == "cifar10_sp":
         return LRGBDataset(
             root=root,
             name="CIFAR10-SP",
             pe_config=pe_config,
-            **kwargs,
+            **lrgb_kwargs,
         )
 
     # OGB molecular datasets
     elif name_lower in ["ogbg-molhiv", "molhiv"]:
+        ogb_kwargs = {k: v for k, v in kwargs.items() if k in ogb_allowed}
         return OGBMolDataset(
             root=root,
             name="ogbg-molhiv",
             pe_config=pe_config,
-            **kwargs,
+            **ogb_kwargs,
         )
     elif name_lower in ["ogbg-molpcba", "molpcba"]:
+        ogb_kwargs = {k: v for k, v in kwargs.items() if k in ogb_allowed}
         return OGBMolDataset(
             root=root,
             name="ogbg-molpcba",
             pe_config=pe_config,
-            **kwargs,
+            **ogb_kwargs,
         )
 
     # PCQM datasets
     elif name_lower == "pcqm4m":
+        # Exclude 'subset' from kwargs since it's passed explicitly
+        pcqm_kwargs = {k: v for k, v in kwargs.items() 
+                      if k in pcqm_allowed and k != "subset"}
         return PCQM4MDatasetWrapper(
             root=root,
             pe_config=pe_config,
             subset=kwargs.get("subset", None),
-            **{k: v for k, v in kwargs.items() if k != "subset"},
+            **pcqm_kwargs,
         )
     elif name_lower == "pcqm-contact":
+        # Exclude 'subset' from kwargs since it's passed explicitly
+        pcqm_kwargs = {k: v for k, v in kwargs.items() 
+                      if k in pcqm_allowed and k != "subset"}
         return PCQMContactDatasetWrapper(
             root=root,
             pe_config=pe_config,
             subset=kwargs.get("subset", None),
-            **{k: v for k, v in kwargs.items() if k != "subset"},
+            **pcqm_kwargs,
         )
 
     # Synthetic datasets

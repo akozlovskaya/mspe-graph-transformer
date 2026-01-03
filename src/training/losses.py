@@ -171,7 +171,7 @@ def get_loss_fn(
     Factory function to get appropriate loss function.
 
     Args:
-        task_type: Task type: 'regression', 'classification', 'edge_prediction'.
+        task_type: Task type: 'regression', 'classification', 'multilabel', 'edge_prediction'.
         loss_type: Specific loss type (optional, defaults based on task).
         num_classes: Number of classes for classification.
         class_weights: Optional class weights.
@@ -194,6 +194,13 @@ def get_loss_fn(
                 num_classes=num_classes,
                 class_weights=class_weights,
             )
+    elif task_type == "multilabel":
+        # Multilabel classification uses BCE with logits
+        return ClassificationLoss(
+            loss_type=loss_type or "bce_logits",
+            num_classes=num_classes,
+            class_weights=class_weights,
+        )
     elif task_type == "edge_prediction":
         return EdgePredictionLoss()
     else:

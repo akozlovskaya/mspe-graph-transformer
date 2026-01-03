@@ -94,7 +94,6 @@ mspe-graph-transformer/
 ├── data/                      # Data directory (auto-created)
 ├── src/
 │   ├── dataset/               # Dataset loaders and transforms
-│   │   └── synthetic/         # Synthetic graph generators and tasks
 │   ├── pe/
 │   │   ├── node/             # Node-wise PEs (LapPE, RWSE, HKS)
 │   │   └── relative/         # Relative PEs (SPD, Diffusion)

@@ -50,6 +50,20 @@ def get_model(
 
     # Map to GraphTransformer expected argument names
     use_relative_pe = relative_pe_dim is not None and relative_pe_dim > 0
+    
+    # Convert ffn_dim to ffn_expansion if provided
+    if "ffn_dim" in kwargs:
+        ffn_dim = kwargs.pop("ffn_dim")
+        if "ffn_expansion" not in kwargs:
+            # Calculate expansion factor: ffn_dim = hidden_dim * expansion
+            kwargs["ffn_expansion"] = ffn_dim // hidden_dim if hidden_dim > 0 else 4
+    
+    # Filter out unsupported parameters
+    supported_kwargs = {
+        "mpnn_type", "attn_dropout", "ffn_expansion", "gate_type",
+        "use_local", "use_global", "drop_path_rate", "readout"
+    }
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k in supported_kwargs}
 
     if name in ["graph_transformer", "gt"]:
         if task == "node":
@@ -62,7 +76,7 @@ def get_model(
                 dropout=dropout,
                 node_pe_dim=node_pe_dim or 0,
                 use_relative_pe=use_relative_pe,
-                **kwargs,
+                **filtered_kwargs,
             )
         else:
             model = GraphTransformerForGraphClassification(
@@ -74,10 +88,11 @@ def get_model(
                 dropout=dropout,
                 node_pe_dim=node_pe_dim or 0,
                 use_relative_pe=use_relative_pe,
-                **kwargs,
+                **filtered_kwargs,
             )
     elif name == "gps":
         # GPS uses GraphTransformer as well
+        # Use same filtered kwargs
         model = GraphTransformerForGraphClassification(
             node_dim=num_features,
             out_dim=num_classes,
@@ -87,7 +102,7 @@ def get_model(
             dropout=dropout,
             node_pe_dim=node_pe_dim or 0,
             use_relative_pe=use_relative_pe,
-            **kwargs,
+            **filtered_kwargs,
         )
     else:
         raise ValueError(f"Unknown model: {name}")

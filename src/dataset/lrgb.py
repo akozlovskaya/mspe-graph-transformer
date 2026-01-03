@@ -58,6 +58,7 @@ class LRGBDataset(BaseGraphDataset):
         val_data = []
         test_data = []
 
+        # Try to extract splits from data.split attribute
         for data in self.full_dataset:
             # LRGB datasets have split attribute
             if hasattr(data, "split"):
@@ -68,21 +69,10 @@ class LRGBDataset(BaseGraphDataset):
                     val_data.append(data)
                 elif split == "test":
                     test_data.append(data)
-            else:
-                # Fallback: use dataset's split method if available
-                train_data.append(data)
 
-        # If no split info, use default split
-        if not train_data and not val_data and not test_data:
-            # Use all data as train for now
-            train_data = list(self.full_dataset)
-
-        self.train_dataset = InMemoryGraphDataset(train_data) if train_data else None
-        self.val_dataset = InMemoryGraphDataset(val_data) if val_data else None
-        self.test_dataset = InMemoryGraphDataset(test_data) if test_data else None
-
-        # If splits not found, create manual split
-        if self.train_dataset is None:
+        # If no split info found or some splits are missing, create manual split
+        if not train_data or not val_data or not test_data:
+            # Create manual split from all data
             total = len(self.full_dataset)
             train_size = int(0.8 * total)
             val_size = int(0.1 * total)
@@ -93,9 +83,19 @@ class LRGBDataset(BaseGraphDataset):
             ]
             test_data = [self.full_dataset[i] for i in range(train_size + val_size, total)]
 
-            self.train_dataset = InMemoryGraphDataset(train_data)
-            self.val_dataset = InMemoryGraphDataset(val_data)
-            self.test_dataset = InMemoryGraphDataset(test_data)
+        # Create datasets (should never be empty after manual split)
+        self.train_dataset = InMemoryGraphDataset(train_data) if train_data else None
+        self.val_dataset = InMemoryGraphDataset(val_data) if val_data else None
+        self.test_dataset = InMemoryGraphDataset(test_data) if test_data else None
+
+        # Final fallback: if still None, raise error
+        if self.train_dataset is None or self.val_dataset is None or self.test_dataset is None:
+            raise ValueError(
+                f"Failed to create dataset splits for {self.name}. "
+                f"Train: {self.train_dataset is not None}, "
+                f"Val: {self.val_dataset is not None}, "
+                f"Test: {self.test_dataset is not None}"
+            )
 
     def load(self) -> Tuple[Dataset, Dataset, Dataset]:
         """Load train, val, and test splits."""

@@ -9,7 +9,7 @@ defaults:
 
 # Global settings
 seed: 42
-device: cuda
+device: null  # null = auto-select (CUDA if available, else CPU)
 deterministic: true
 output_dir: ./outputs
 experiment_name: experiment
