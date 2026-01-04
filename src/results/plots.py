@@ -100,7 +100,10 @@ class PlotGenerator:
         ax.set_xlabel("Graph Distance")
         ax.set_ylabel(self._format_metric_label(metric))
         ax.set_title("Performance vs Distance")
-        ax.legend(loc="best", framealpha=0.9)
+        # Only add legend if there are labeled artists
+        handles, labels = ax.get_legend_handles_labels()
+        if handles:
+            ax.legend(loc="best", framealpha=0.9)
         ax.set_xlim(0, max_distance + 1)
 
         fig.tight_layout()

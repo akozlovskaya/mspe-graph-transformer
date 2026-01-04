@@ -418,17 +418,50 @@ class TestIntegration:
 
     def test_ablation_toggles(self, sample_config):
         """Test that ablation toggles change behavior."""
-        # Toggle PE off
-        no_pe = sample_config.with_overrides(**{
-            "pe.node.type": "none",
-            "pe.relative.type": "none",
+        # Get original PE type
+        original_node_type = sample_config.pe.get("node", {}).get("type", "none")
+        original_id = sample_config.get_id()
+        
+        # Change PE to a different type to ensure ID changes
+        if original_node_type == "lap":
+            new_node_type = "rwse"
+        elif original_node_type == "rwse":
+            new_node_type = "lap"
+        else:
+            # If already "none", change to "lap"
+            new_node_type = "lap"
+        
+        # Toggle PE to different type
+        changed_pe = sample_config.with_overrides(**{
+            "pe.node.type": new_node_type,
         })
 
-        assert no_pe.pe["node"]["type"] == "none"
-        assert no_pe.pe["relative"]["type"] == "none"
-
+        assert changed_pe.pe["node"]["type"] == new_node_type
+        changed_id = changed_pe.get_id()
+        
         # Different configs should have different IDs
-        assert no_pe.get_id() != sample_config.get_id()
+        assert changed_id != original_id, (
+            f"Configs should have different IDs. "
+            f"Original: {original_node_type} (ID: {original_id}), "
+            f"Changed: {new_node_type} (ID: {changed_id})"
+        )
+        
+        # Also test turning PE off (if not already off)
+        if original_node_type != "none":
+            no_pe = sample_config.with_overrides(**{
+                "pe.node.type": "none",
+                "pe.relative.type": "none",
+            })
+
+            assert no_pe.pe["node"]["type"] == "none"
+            assert no_pe.pe["relative"]["type"] == "none"
+            
+            no_pe_id = no_pe.get_id()
+            # Should also have different ID
+            assert no_pe_id != original_id, (
+                f"Config with PE disabled should have different ID. "
+                f"Original ID: {original_id}, No PE ID: {no_pe_id}"
+            )
 
 
 if __name__ == "__main__":

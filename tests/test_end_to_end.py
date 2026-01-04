@@ -103,7 +103,11 @@ class TestEndToEndPipeline:
             for batch in train_loader:
                 optimizer.zero_grad()
                 out = simple_model(batch)
-                loss = loss_fn(out, batch.y[:1])
+                # Ensure target has same shape as output [batch_size, 1]
+                target = batch.y[:1] if batch.y.dim() == 1 else batch.y[:1]
+                if target.dim() == 1:
+                    target = target.unsqueeze(1)
+                loss = loss_fn(out, target)
                 loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
@@ -116,7 +120,11 @@ class TestEndToEndPipeline:
         with torch.no_grad():
             for batch in val_loader:
                 out = simple_model(batch)
-                val_loss += loss_fn(out, batch.y[:1]).item()
+                # Ensure target has same shape as output [batch_size, 1]
+                target = batch.y[:1] if batch.y.dim() == 1 else batch.y[:1]
+                if target.dim() == 1:
+                    target = target.unsqueeze(1)
+                val_loss += loss_fn(out, target).item()
         val_loss /= len(val_loader)
 
         # Assertions
@@ -199,13 +207,14 @@ class TestPEIntegration:
         """Test node PE is applied to data."""
         from src.pe.node import RWSE
 
-        pe = RWSE(scales=[1, 2, 4])
+        pe = RWSE(dim=16, scales=[1, 2, 4])
 
         for data in toy_dataset[:5]:
             node_pe = pe.compute(data)
             assert node_pe is not None
             assert node_pe.shape[0] == data.num_nodes
-            assert node_pe.shape[1] == 3  # 3 scales
+            # RWSE output dimension equals number of scales (not dim parameter)
+            assert node_pe.shape[1] == len(pe.scales)  # 3 scales
 
     def test_relative_pe_applied(self, toy_dataset):
         """Test relative PE is applied to data."""

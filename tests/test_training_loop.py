@@ -71,7 +71,7 @@ def sample_batch():
         num_nodes = 10 + i * 2
         x = torch.randn(num_nodes, 16)
         edge_index = torch.randint(0, num_nodes, (2, num_nodes * 2))
-        y = torch.randn(1)
+        y = torch.randn(1).unsqueeze(0)  # Shape [1, 1] to match model output
         graphs.append(Data(x=x, edge_index=edge_index, y=y))
 
     return Batch.from_data_list(graphs)
@@ -99,8 +99,8 @@ def toy_dataset():
         num_nodes = 10
         x = torch.randn(num_nodes, 16)
         edge_index = torch.randint(0, num_nodes, (2, 20))
-        y = x.mean()  # Target is mean of features
-        graphs.append(Data(x=x, edge_index=edge_index, y=y.unsqueeze(0)))
+        y = x.mean().unsqueeze(0).unsqueeze(0)  # Shape [1, 1] to match model output
+        graphs.append(Data(x=x, edge_index=edge_index, y=y))
     return graphs
 
 
@@ -300,6 +300,8 @@ class TestScheduler:
         lrs = []
         for epoch in range(100):
             lrs.append(optimizer.param_groups[0]["lr"])
+            # Call optimizer.step() before scheduler.step() (PyTorch 1.1+ requirement)
+            optimizer.step()
             scheduler.step()
 
         # Check warmup (LR should increase)
@@ -322,6 +324,8 @@ class TestScheduler:
 
         initial_lr = optimizer.param_groups[0]["lr"]
         for _ in range(10):
+            # Call optimizer.step() before scheduler.step() (PyTorch 1.1+ requirement)
+            optimizer.step()
             scheduler.step()
 
         # LR should decrease by factor of gamma

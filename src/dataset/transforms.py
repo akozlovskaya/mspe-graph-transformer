@@ -43,9 +43,6 @@ class ApplyNodePE(BaseTransform):
             data.node_pe = torch.zeros(data.num_nodes, self.dim, dtype=torch.float32)
             return data
 
-        # TODO: Import and use actual PE computation modules
-        # For now, create placeholder PE
-        # This will be replaced with actual implementations from src.pe.node
         node_pe = self._compute_node_pe(data)
 
         data.node_pe = node_pe

@@ -179,7 +179,7 @@ class TestPEReproducibility:
         """Test LapPE is deterministic."""
         from src.pe.node import LapPE
 
-        pe = LapPE(k=4)
+        pe = LapPE(dim=16, k=4)
 
         set_global_seed(42)
         pe1 = pe.compute(sample_graph)
@@ -195,7 +195,7 @@ class TestPEReproducibility:
         """Test RWSE is deterministic (should be fully deterministic)."""
         from src.pe.node import RWSE
 
-        pe = RWSE(scales=[1, 2, 4])
+        pe = RWSE(dim=16, scales=[1, 2, 4])
 
         pe1 = pe.compute(sample_graph)
         pe2 = pe.compute(sample_graph)
