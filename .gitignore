@@ -20,6 +20,12 @@ wheels/
 .installed.cfg
 *.egg
 
+# Scripts and notebooks
+scripts/download_zinc.py
+PROJECT_OVERVIEW.md
+check_datasets.ipynb
+vis_maga.ipynb
+
 # Virtual environments
 venv/
 env/
@@ -48,6 +54,7 @@ outputs/
 logs/
 wandb/
 tensorboard/
+results/
 
 # Hydra
 .hydra/
