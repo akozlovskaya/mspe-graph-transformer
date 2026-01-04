@@ -1,36 +1,36 @@
 # Long-Range Dependency Evaluation Framework
 
-Фреймворк для оценки способности Graph Transformers моделировать long-range зависимости в графах.
+Framework for evaluating the ability of Graph Transformers to model long-range dependencies in graphs.
 
-## Структура
+## Structure
 
 ```
 src/evaluation/
-├── __init__.py           # Публичный API
-├── distance_metrics.py   # Вычисление расстояний в графе
-├── stratification.py     # Стратификация по расстоянию
-├── long_range.py         # Метрики long-range оценки
-├── probes.py             # Синтетические probing задачи
-├── utils.py              # Утилиты и визуализация
-└── README.md             # Документация
+├── __init__.py           # Public API
+├── distance_metrics.py   # Graph distance computation
+├── stratification.py     # Distance-based stratification
+├── long_range.py         # Long-range evaluation metrics
+├── probes.py             # Synthetic probing tasks
+├── utils.py              # Utilities and visualization
+└── README.md             # Documentation
 ```
 
-## Основные концепции
+## Key Concepts
 
 ### Distance-based Evaluation
 
-Long-range оценка основана на измерении качества предсказаний как функции графового расстояния между информативными узлами и целевыми узлами.
+Long-range evaluation is based on measuring prediction quality as a function of graph distance between informative nodes and target nodes.
 
-### Ключевые метрики
+### Key Metrics
 
-- **Metrics per bucket**: Точность/MAE для каждого диапазона расстояний
-- **Relative performance drop**: Падение качества относительно short-range
-- **AUC (distance-performance)**: Площадь под кривой качество-расстояние
-- **Effective Receptive Field (ERF)**: Максимальное расстояние, на котором модель работает
+- **Metrics per bucket**: Accuracy/MAE for each distance range
+- **Relative performance drop**: Quality degradation relative to short-range
+- **AUC (distance-performance)**: Area under the quality-distance curve
+- **Effective Receptive Field (ERF)**: Maximum distance at which the model works
 
-## Быстрый старт
+## Quick Start
 
-### Базовое использование
+### Basic Usage
 
 ```python
 from src.evaluation import (
@@ -39,29 +39,29 @@ from src.evaluation import (
     print_evaluation_summary,
 )
 
-# Добавить информацию о расстояниях к данным
+# Add distance information to data
 for data in dataset:
     add_distance_info_to_data(data, max_distance=20)
 
-# Создать evaluator
+# Create evaluator
 evaluator = LongRangeEvaluator(
     max_distance=20,
     bucket_size=2,
     task_type="regression",
 )
 
-# Оценка
+# Evaluation
 for batch in loader:
     pred = model(batch)
-    distances = get_distances(batch)  # Расстояния для стратификации
+    distances = get_distances(batch)  # Distances for stratification
     evaluator.update(pred, batch.y, distances)
 
-# Результаты
+# Results
 results = evaluator.compute()
 print_evaluation_summary(results)
 ```
 
-### Запуск скрипта
+### Running Script
 
 ```bash
 python scripts/evaluate_long_range.py \
@@ -78,12 +78,12 @@ python scripts/evaluate_long_range.py \
 ```python
 from src.evaluation import compute_shortest_path_distances
 
-# Полная матрица расстояний [N x N]
+# Full distance matrix [N x N]
 distances = compute_shortest_path_distances(
     edge_index, num_nodes, max_distance=20
 )
 
-# Sparse формат (только пары в пределах max_distance)
+# Sparse format (only pairs within max_distance)
 pair_indices, pair_distances = compute_shortest_path_distances_sparse(
     edge_index, num_nodes, max_distance=10
 )
@@ -91,7 +91,7 @@ pair_indices, pair_distances = compute_shortest_path_distances_sparse(
 
 ### Landmark-based Approximation
 
-Для больших графов используйте аппроксимацию через landmarks:
+For large graphs, use landmark-based approximation:
 
 ```python
 from src.evaluation import compute_landmark_distances
@@ -99,11 +99,11 @@ from src.evaluation import compute_landmark_distances
 landmark_indices, landmark_distances = compute_landmark_distances(
     edge_index, num_nodes,
     num_landmarks=10,
-    selection="degree",  # или "random"
+    selection="degree",  # or "random"
 )
 ```
 
-### Добавление расстояний к Data
+### Adding Distances to Data
 
 ```python
 from src.evaluation import add_distance_info_to_data
@@ -111,28 +111,28 @@ from src.evaluation import add_distance_info_to_data
 data = add_distance_info_to_data(
     data,
     max_distance=20,
-    sparse=True,           # Sparse storage для больших графов
+    sparse=True,           # Sparse storage for large graphs
     use_landmarks=False,   # Landmark approximation
 )
 ```
 
 ## Stratification
 
-### Создание buckets
+### Creating Buckets
 
 ```python
 from src.evaluation import create_distance_buckets, stratify_by_distance
 
-# Создать buckets: [(0,1), (2,3), (4,5), ...]
+# Create buckets: [(0,1), (2,3), (4,5), ...]
 buckets = create_distance_buckets(max_distance=10, bucket_size=2)
 
-# Стратифицировать предсказания
+# Stratify predictions
 stratified = stratify_by_distance(
     predictions, targets, distances, buckets
 )
 ```
 
-### DistanceStratifier (для накопления batch'ей)
+### DistanceStratifier (for accumulating batches)
 
 ```python
 from src.evaluation import DistanceStratifier
@@ -154,9 +154,9 @@ from src.evaluation import compute_metrics_per_bucket
 
 metrics = compute_metrics_per_bucket(
     stratified,
-    task_type="regression",  # или "classification", "binary"
+    task_type="regression",  # or "classification", "binary"
 )
-# Возвращает: {(0,1): {"mae": 0.5, "mse": 0.3, ...}, ...}
+# Returns: {(0,1): {"mae": 0.5, "mse": 0.3, ...}, ...}
 ```
 
 ### Relative Performance Drop
@@ -166,9 +166,9 @@ from src.evaluation import compute_relative_performance_drop
 
 drops = compute_relative_performance_drop(
     metrics_per_bucket,
-    higher_is_better=True,  # False для MAE
+    higher_is_better=True,  # False for MAE
 )
-# Возвращает: {(0,1): 0.0, (2,3): 0.15, ...}
+# Returns: {(0,1): 0.0, (2,3): 0.15, ...}
 ```
 
 ### Area Under Distance Curve
@@ -190,7 +190,7 @@ from src.evaluation import find_effective_receptive_field
 
 erf = find_effective_receptive_field(
     metrics_per_bucket,
-    threshold=0.5,  # 50% от baseline
+    threshold=0.5,  # 50% of baseline
 )
 ```
 
@@ -198,7 +198,7 @@ erf = find_effective_receptive_field(
 
 ### Path Parity Probe
 
-Проверяет способность вычислять XOR вдоль пути:
+Tests the ability to compute XOR along a path:
 
 ```python
 from src.evaluation import PathParityProbe
@@ -210,19 +210,19 @@ batch = probe.generate_batch(batch_size=32)
 
 ### Node Counting Probe
 
-Проверяет receptive field:
+Tests receptive field:
 
 ```python
 from src.evaluation import NodeCountingProbe
 
 probe = NodeCountingProbe(max_hops=5)
 counts, distances = probe.generate_task(data)
-# counts[i, k] = количество узлов в k-окрестности узла i
+# counts[i, k] = number of nodes in k-hop neighborhood of node i
 ```
 
 ### Synthetic Long-Range Task
 
-Задача, требующая информации с заданного расстояния:
+Task requiring information from a given distance:
 
 ```python
 from src.evaluation import SyntheticLongRangeTask
@@ -261,12 +261,12 @@ plot_layer_wise_analysis(
 
 ## Layer-wise Analysis
 
-Для анализа как информация распространяется по слоям:
+For analyzing how information propagates through layers:
 
 ```python
 from src.evaluation import evaluate_layer_wise_long_range
 
-# Модель должна поддерживать return_intermediate=True
+# Model must support return_intermediate=True
 results = evaluate_layer_wise_long_range(
     hidden_states,     # List[Tensor] per layer
     targets,
@@ -278,7 +278,7 @@ results = evaluate_layer_wise_long_range(
 # results[layer_idx] = {"auc": ..., "erf": ..., ...}
 ```
 
-## Сравнение PE Конфигураций
+## Comparing PE Configurations
 
 ```python
 from src.evaluation import compare_pe_configurations
@@ -296,7 +296,7 @@ print(f"Ranking: {comparison['ranking']}")
 
 ## Output Format
 
-Результаты сохраняются в JSON:
+Results are saved in JSON:
 
 ```json
 {
@@ -318,20 +318,19 @@ print(f"Ranking: {comparison['ranking']}")
 }
 ```
 
-## Детерминизм
+## Determinism
 
-Все вычисления детерминистичны при фиксированном seed:
+All computations are deterministic with a fixed seed:
 
 ```python
 from src.training import set_seed
 
 set_seed(42)
-# Все операции будут воспроизводимы
+# All operations will be reproducible
 ```
 
 ## Constraints
 
-- Расстояния вычисляются один раз и кэшируются в Data объектах
-- Избегается O(N²) хранение для больших графов (sparse формат)
-- Gradients отключены во время оценки
-
+- Distances are computed once and cached in Data objects
+- O(N²) storage is avoided for large graphs (sparse format)
+- Gradients are disabled during evaluation

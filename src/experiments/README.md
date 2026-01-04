@@ -1,22 +1,22 @@
 # Experiment Orchestration Module
 
-Модуль для управления экспериментами, аблациями и sweep'ами.
+Module for managing experiments, ablations, and sweeps.
 
-## Структура
+## Structure
 
 ```
 src/experiments/
-    __init__.py      # Публичный API
-    registry.py      # Реестр экспериментов
-    runner.py        # Запуск экспериментов
-    sweeps.py        # Управление sweep'ами
-    logging.py       # Логирование
-    utils.py         # Утилиты
+    __init__.py      # Public API
+    registry.py      # Experiment registry
+    runner.py        # Experiment execution
+    sweeps.py        # Sweep management
+    logging.py       # Logging
+    utils.py         # Utilities
 ```
 
-## Быстрый старт
+## Quick Start
 
-### Запуск одного эксперимента
+### Running a Single Experiment
 
 ```python
 from src.experiments import ExperimentConfig, ExperimentRunner
@@ -37,12 +37,12 @@ runner = ExperimentRunner(config, output_dir="./outputs/zinc_mspe")
 results = runner.run_all()
 ```
 
-### Использование реестра экспериментов
+### Using Experiment Registry
 
 ```python
 from src.experiments import register_experiment, get_experiment
 
-# Регистрация
+# Registration
 register_experiment(
     "my_experiment",
     dataset={"name": "zinc"},
@@ -50,11 +50,11 @@ register_experiment(
     tags=["baseline"],
 )
 
-# Получение
+# Retrieval
 config = get_experiment("my_experiment")
 ```
 
-### Создание аблации
+### Creating Ablations
 
 ```python
 from src.experiments import ExperimentRegistry
@@ -62,7 +62,7 @@ from src.experiments import ExperimentRegistry
 registry = ExperimentRegistry()
 registry.register("base", dataset={"name": "zinc"}, model={"num_layers": 6})
 
-# Аблация с изменением глубины
+# Ablation with depth change
 ablation = registry.create_ablation(
     "base",
     "base_depth_12",
@@ -70,7 +70,7 @@ ablation = registry.create_ablation(
 )
 ```
 
-## Sweep'ы
+## Sweeps
 
 ### Grid Sweep
 
@@ -106,86 +106,85 @@ for config in sweep.generate():
 
 ## CLI
 
-### Запуск эксперимента
+### Running an Experiment
 
 ```bash
-# С Hydra
+# With Hydra
 python scripts/run_experiment.py dataset=zinc model=graph_transformer pe=mspe
 
-# С CLI аргументами
+# With CLI arguments
 python scripts/run_experiment.py --dataset zinc --model graph_transformer --epochs 100
 ```
 
-### Запуск sweep'а
+### Running a Sweep
 
 ```bash
-# Предустановленный sweep
+# Predefined sweep
 python scripts/run_sweep.py --sweep pe_ablation
 
-# Из файла конфигурации
+# From configuration file
 python scripts/run_sweep.py --sweep configs/experiments/model_depth.yaml
 
 # Seed sweep
 python scripts/run_sweep.py --sweep_type seed --base_experiment zinc_mspe --seeds 42 123 456
 ```
 
-## Структура выходных данных
+## Output Structure
 
 ```
 outputs/
     experiment_name/
         experiment_id/
-            config.yaml          # Конфигурация
-            checkpoints/         # Чекпоинты модели
+            config.yaml          # Configuration
+            checkpoints/         # Model checkpoints
                 best.pt
                 last.pt
-            logs/                # Логи
+            logs/                # Logs
                 experiment_*.log
-            metrics.json         # История метрик
-            results.json         # Итоговые результаты
-            long_range.json      # Long-range метрики
-            artifacts/           # Дополнительные артефакты
+            metrics.json         # Metric history
+            results.json         # Final results
+            long_range.json      # Long-range metrics
+            artifacts/           # Additional artifacts
 ```
 
-## Агрегация результатов
+## Result Aggregation
 
 ```python
 from src.experiments import aggregate_results, results_to_dataframe
 
-# Загрузка результатов
+# Load results
 results_list = [load_experiment_results(path) for path in experiment_paths]
 
-# Агрегация (mean, std)
+# Aggregation (mean, std)
 aggregated = aggregate_results(results_list)
 print(f"MAE: {aggregated['aggregated_metrics']['mae']['mean']:.4f} ± "
       f"{aggregated['aggregated_metrics']['mae']['std']:.4f}")
 
-# Экспорт в таблицу
+# Export to table
 df = results_to_dataframe(results_list)
 df.to_csv("results_table.csv")
 ```
 
-## Предустановленные конфигурации
+## Predefined Configurations
 
-### Эксперименты
+### Experiments
 
-- `zinc_baseline` - Baseline на ZINC
-- `zinc_mspe` - MSPE на ZINC
-- `peptides_func_baseline` - Baseline на Peptides-func
-- `peptides_func_mspe` - MSPE на Peptides-func
+- `zinc_baseline` - Baseline on ZINC
+- `zinc_mspe` - MSPE on ZINC
+- `peptides_func_baseline` - Baseline on Peptides-func
+- `peptides_func_mspe` - MSPE on Peptides-func
 
-### Sweep'ы
+### Sweeps
 
-- `pe_ablation` - Аблация по типам PE
-- `depth_sweep` - Аблация по глубине модели
-- `pe_scale` - Аблация по размерности PE
-- `seed_sweep` - Воспроизводимость с разными seed'ами
+- `pe_ablation` - Ablation over PE types
+- `depth_sweep` - Ablation over model depth
+- `pe_scale` - Ablation over PE dimension
+- `seed_sweep` - Reproducibility with different seeds
 
-## Требования
+## Requirements
 
 - Python >= 3.8
 - PyTorch >= 1.12
 - PyTorch Geometric >= 2.0
-- Hydra >= 1.0 (опционально)
+- Hydra >= 1.0 (optional)
 - PyYAML
-

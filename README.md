@@ -9,7 +9,7 @@ This repository accompanies a master's thesis on positional encodings for graph 
 
 ---
 
-## 🎯 Project Goal
+## Project Goal
 
 Investigate how multi-scale positional encodings improve Graph Transformer performance, 
 particularly for long-range dependencies in molecular and structural graphs.
@@ -21,7 +21,7 @@ particularly for long-range dependencies in molecular and structural graphs.
 
 ---
 
-## 🚀 Features
+## Features
 
 ### Multi-Scale Node Positional Encodings
 - **LapPE** — Laplacian eigenvector encodings with sign-invariant processing
@@ -57,7 +57,7 @@ particularly for long-range dependencies in molecular and structural graphs.
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
 # Clone repository
@@ -78,7 +78,7 @@ pip install torch-geometric
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 mspe-graph-transformer/
@@ -123,7 +123,7 @@ mspe-graph-transformer/
 
 ---
 
-## ▶️ Quick Start
+## Quick Start
 
 ### 1. Train a Model
 
@@ -185,7 +185,7 @@ python scripts/run_experiment.py experiment=synthetic/cross_graph_generalization
 
 ---
 
-## 🔬 Reproducing Thesis Results
+## Reproducing Thesis Results
 
 All thesis results can be reproduced using predefined experiment configurations:
 
@@ -246,7 +246,7 @@ python scripts/run_experiment.py experiment=synthetic/size_extrapolation
 
 ---
 
-## 🧪 Supported Datasets
+## Supported Datasets
 
 ### Real-World Datasets
 
@@ -289,7 +289,7 @@ See [`src/dataset/synthetic/README.md`](src/dataset/synthetic/README.md) for det
 
 ---
 
-## 📊 Positional Encoding Reference
+## Positional Encoding Reference
 
 ### Node-wise PEs
 
@@ -309,7 +309,7 @@ See [`src/dataset/synthetic/README.md`](src/dataset/synthetic/README.md) for det
 
 ---
 
-## ⚙️ Configuration System
+## Configuration System
 
 The project uses Hydra for configuration management. Key config groups:
 
@@ -336,7 +336,7 @@ python scripts/train.py \
 
 ---
 
-## 🔧 Development
+## Development
 
 ### Running Tests
 
@@ -363,7 +363,7 @@ mypy src/
 
 ---
 
-## 📚 Citation
+## Citation
 
 If you use this repository in your research, please cite:
 
@@ -378,13 +378,13 @@ If you use this repository in your research, please cite:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Graphormer](https://github.com/microsoft/Graphormer)
 - [GPS](https://github.com/rampasek/GraphGPS)

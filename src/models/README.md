@@ -1,32 +1,32 @@
 # Graph Transformer Models
 
-Модуль реализующий Graph Transformer архитектуру в стиле GraphGPS с поддержкой multi-scale positional encodings.
+Module implementing Graph Transformer architecture in GraphGPS style with support for multi-scale positional encodings.
 
-## 📦 Основные компоненты
+## Main Components
 
-### 1. **GraphTransformer** - Основная модель
+### 1. **GraphTransformer** - Main Model
 
 ```python
 from src.models import GraphTransformer
 
 model = GraphTransformer(
-    node_dim=9,            # Размерность node features
-    hidden_dim=128,        # Скрытое измерение
-    num_layers=12,         # Количество GPS слоёв
-    num_heads=8,           # Количество attention heads
-    out_dim=1,             # Выходное измерение
-    mpnn_type="gin",       # Тип MPNN: 'gin', 'gat', 'gcn'
-    node_pe_dim=16,        # Размерность node PE (0 = без PE)
-    use_relative_pe=True,  # Использовать relative PE
+    node_dim=9,            # Node feature dimension
+    hidden_dim=128,        # Hidden dimension
+    num_layers=12,         # Number of GPS layers
+    num_heads=8,           # Number of attention heads
+    out_dim=1,             # Output dimension
+    mpnn_type="gin",       # MPNN type: 'gin', 'gat', 'gcn'
+    node_pe_dim=16,        # Node PE dimension (0 = no PE)
+    use_relative_pe=True,  # Use relative PE
     dropout=0.1,
-    task="graph",          # 'graph' или 'node'
+    task="graph",          # 'graph' or 'node'
 )
 
 # Forward pass
 out = model(data)  # data.x, data.edge_index, data.node_pe, data.edge_pe
 ```
 
-### 2. **GPSLayer** - Основной блок
+### 2. **GPSLayer** - Main Block
 
 ```python
 from src.models import GPSLayer
@@ -37,14 +37,14 @@ layer = GPSLayer(
     mpnn_type="gin",
     dropout=0.1,
     gate_type="scalar",  # 'scalar', 'vector', 'mlp'
-    use_local=True,      # Использовать local MPNN
-    use_global=True,     # Использовать global attention
+    use_local=True,      # Use local MPNN
+    use_global=True,     # Use global attention
 )
 
 out = layer(x, edge_index, attention_bias=bias)
 ```
 
-### 3. **MultiHeadAttention** - Attention с relative PE
+### 3. **MultiHeadAttention** - Attention with relative PE
 
 ```python
 from src.models import MultiHeadAttention
@@ -55,7 +55,7 @@ attn = MultiHeadAttention(
     dropout=0.1,
 )
 
-# С attention bias от relative PE
+# With attention bias from relative PE
 out = attn(x, attention_bias=bias, batch=batch)
 ```
 
@@ -76,7 +76,7 @@ mpnn = MPNNBlock(hidden_dim=128, mpnn_type="gcn")
 out = mpnn(x, edge_index)
 ```
 
-## 🏗️ Архитектура
+## Architecture
 
 ```
 Input: data.x [N, node_dim], data.node_pe [N, pe_dim], data.edge_pe [P, pe_dim]
@@ -111,44 +111,44 @@ Input: data.x [N, node_dim], data.node_pe [N, pe_dim], data.edge_pe [P, pe_dim]
                               Output [B, out_dim]
 ```
 
-## 📊 Входные данные
+## Input Data
 
-Модель ожидает PyG Data или Batch с полями:
+The model expects PyG Data or Batch with fields:
 
 - `x`: Node features [N, node_dim]
 - `edge_index`: Edge indices [2, E]
-- `node_pe`: Node positional encodings [N, pe_dim] (опционально)
-- `edge_pe_index`: Relative PE indices [2, P] (опционально)
-- `edge_pe`: Relative PE values [P, pe_dim] (опционально)
-- `batch`: Batch assignment [N] (для Batch)
+- `node_pe`: Node positional encodings [N, pe_dim] (optional)
+- `edge_pe_index`: Relative PE indices [2, P] (optional)
+- `edge_pe`: Relative PE values [P, pe_dim] (optional)
+- `batch`: Batch assignment [N] (for Batch)
 
-## 🔧 Особенности
+## Features
 
 ### Pre-LN Normalization
-Используется Pre-LN (LayerNorm перед каждым sub-block) для стабильности глубоких моделей.
+Uses Pre-LN (LayerNorm before each sub-block) for stability in deep models.
 
 ### Gating Mechanism
-Learnable gate для смешивания local (MPNN) и global (attention) features:
+Learnable gate for mixing local (MPNN) and global (attention) features:
 ```
 h = gate * h_global + (1 - gate) * h_local
 ```
 
 ### Stochastic Depth
-Drop path для регуляризации глубоких моделей (linearly increasing rate).
+Drop path for regularization in deep models (linearly increasing rate).
 
 ### Relative PE Integration
-Attention bias из relative PE:
+Attention bias from relative PE:
 ```
 attn = softmax(QK^T / √d + bias)
 ```
 
-## 🧪 Тестирование
+## Testing
 
 ```bash
 pytest tests/test_graph_transformer.py -v
 ```
 
-## 📚 Примеры
+## Examples
 
 ### Graph Classification
 
@@ -192,9 +192,8 @@ out = model(data)  # [N, num_classes]
 embeddings = model.get_node_embeddings(data)  # [N, hidden_dim]
 ```
 
-## 📖 Ссылки
+## References
 
 - [Recipe for a General, Powerful, Scalable Graph Transformer](https://arxiv.org/abs/2205.12454) (Rampášek et al., 2022)
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) (Vaswani et al., 2017)
 - [Graph Attention Networks](https://arxiv.org/abs/1710.10903) (Veličković et al., 2018)
-

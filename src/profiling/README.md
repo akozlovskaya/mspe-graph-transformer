@@ -1,32 +1,32 @@
 # Profiling Framework
 
-Фреймворк для профилирования эффективности, использования памяти и масштабируемости Graph Transformer моделей.
+Framework for profiling efficiency, memory usage, and scalability of Graph Transformer models.
 
-## Структура
+## Structure
 
 ```
 src/profiling/
-├── __init__.py      # Публичный API
-├── runtime.py       # Профилирование времени выполнения
-├── memory.py        # Профилирование памяти
-├── flops.py         # Оценка FLOPs
-├── scaling.py       # Эксперименты масштабирования
-├── utils.py         # Утилиты
-└── README.md        # Документация
+├── __init__.py      # Public API
+├── runtime.py       # Runtime profiling
+├── memory.py        # Memory profiling
+├── flops.py         # FLOPs estimation
+├── scaling.py       # Scaling experiments
+├── utils.py         # Utilities
+└── README.md        # Documentation
 ```
 
-## Быстрый старт
+## Quick Start
 
 ### Runtime Profiling
 
 ```python
 from src.profiling import RuntimeProfiler, profile_forward
 
-# Простой forward pass
+# Simple forward pass
 stats = profile_forward(model, batch, num_runs=100, warmup_runs=10)
 print(f"Forward: {stats.mean:.2f} ± {stats.std:.2f} ms")
 
-# Полное профилирование
+# Full profiling
 profiler = RuntimeProfiler(model, device, num_runs=100)
 results = profiler.profile_all(batch, optimizer=optimizer)
 print(f"Forward: {results['forward']}")
@@ -97,21 +97,21 @@ experiment.run_layer_scaling()
 experiment.print_summary()
 ```
 
-### Использование скрипта
+### Using Scripts
 
 ```bash
-# Базовое профилирование
+# Basic profiling
 python scripts/profile_model.py \
     --model graph_transformer \
     --profile runtime memory flops
 
-# С датасетом
+# With dataset
 python scripts/profile_model.py \
     --dataset peptides_func \
     --model graph_transformer \
     --profile runtime memory flops scaling
 
-# С кастомными параметрами
+# With custom parameters
 python scripts/profile_model.py \
     --model graph_transformer \
     --hidden_dim 512 \
@@ -122,10 +122,10 @@ python scripts/profile_model.py \
 
 ## Runtime Profiling
 
-### Функции
+### Functions
 
 ```python
-# Benchmark любой функции
+# Benchmark any function
 stats = benchmark_function(
     fn, *args,
     num_runs=100,
@@ -157,7 +157,7 @@ class RuntimeStats:
 
 ### CUDA Synchronization
 
-Все измерения автоматически синхронизируются с CUDA:
+All measurements are automatically synchronized with CUDA:
 
 ```python
 def _cuda_synchronize():
@@ -167,7 +167,7 @@ def _cuda_synchronize():
 
 ## Memory Profiling
 
-### Функции
+### Functions
 
 ```python
 # Reset stats before measurement
@@ -194,10 +194,10 @@ class MemoryStats:
     device: str          # Device string
 ```
 
-### Оценка памяти Attention
+### Attention Memory Estimation
 
 ```python
-# Оценка без запуска модели
+# Estimation without running model
 mem_mb = estimate_attention_memory(
     num_nodes=1000,
     num_heads=8,
@@ -210,14 +210,14 @@ mem_mb = estimate_attention_memory(
 
 ### Assumptions
 
-Оценки FLOPs основаны на следующих допущениях:
+FLOPs estimates are based on the following assumptions:
 - Matrix multiplication A(m×k) @ B(k×n): 2 × m × k × n FLOPs
 - Element-wise ops: 1 FLOP per element
 - Softmax: ~5N FLOPs per row
 - LayerNorm: ~5N FLOPs
 - Activation (GELU): ~4 FLOPs per element
 
-### Компоненты
+### Components
 
 ```python
 # Linear layer
@@ -295,19 +295,19 @@ graphs = generate_scaling_graphs(
 
 ## Profiling Context
 
-Для корректного профилирования используйте контекст:
+For correct profiling, use the context:
 
 ```python
 with ProfilingContext(model, disable_dropout=True, eval_mode=True, seed=42):
-    # Профилирование здесь
+    # Profiling here
     stats = profile_forward(model, batch)
 ```
 
-Контекст:
-- Отключает dropout
-- Переводит модель в eval mode
-- Устанавливает seed
-- Восстанавливает состояние после выхода
+The context:
+- Disables dropout
+- Sets model to eval mode
+- Sets seed
+- Restores state after exit
 
 ## Output Format
 
@@ -348,15 +348,15 @@ with ProfilingContext(model, disable_dropout=True, eval_mode=True, seed=42):
 
 ## Determinism
 
-Профилирование детерминистично при:
-- Фиксированном seed
-- Отключенном dropout
-- Одинаковых batch sizes
+Profiling is deterministic when:
+- Fixed seed
+- Dropout disabled
+- Same batch sizes
 
 ```python
 set_seed(42)
 with ProfilingContext(model, seed=42):
-    # Воспроизводимые результаты
+    # Reproducible results
     ...
 ```
 
@@ -388,9 +388,8 @@ print(f"Relative PE (sparse): {storage['relative_pe_sparse']:.2f} MB")
 
 ## Best Practices
 
-1. **Warmup**: Всегда используйте warmup runs для стабильных измерений
-2. **Batch size**: Используйте одинаковый batch size для сравнений
-3. **CUDA sync**: Все измерения синхронизированы автоматически
-4. **Eval mode**: Используйте eval mode для forward-only профилирования
-5. **Determinism**: Используйте ProfilingContext для воспроизводимости
-
+1. **Warmup**: Always use warmup runs for stable measurements
+2. **Batch size**: Use the same batch size for comparisons
+3. **CUDA sync**: All measurements are automatically synchronized
+4. **Eval mode**: Use eval mode for forward-only profiling
+5. **Determinism**: Use ProfilingContext for reproducibility

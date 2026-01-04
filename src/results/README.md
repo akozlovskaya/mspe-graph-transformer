@@ -1,45 +1,45 @@
 # Results Processing Module
 
-Модуль для обработки результатов экспериментов и генерации таблиц и графиков для диссертации.
+Module for processing experiment results and generating tables and figures for thesis.
 
-## Структура
+## Structure
 
 ```
 src/results/
-    __init__.py      # Публичный API
-    loader.py        # Загрузка результатов
-    aggregate.py     # Агрегация по seeds
-    tables.py        # Генерация таблиц
-    plots.py         # Генерация графиков
-    formatting.py    # Форматирование и стили
-    utils.py         # Утилиты
+    __init__.py      # Public API
+    loader.py        # Result loading
+    aggregate.py     # Aggregation over seeds
+    tables.py        # Table generation
+    plots.py         # Plot generation
+    formatting.py    # Formatting and styles
+    utils.py         # Utilities
 ```
 
-## Быстрый старт
+## Quick Start
 
-### Загрузка результатов
+### Loading Results
 
 ```python
 from src.results import ResultLoader, load_all_experiments
 
-# Загрузить все эксперименты
+# Load all experiments
 loader = ResultLoader("./outputs")
 results = loader.load_all()
 
-# Или напрямую
+# Or directly
 results = load_all_experiments("./outputs")
 
-# Фильтрация
+# Filtering
 from src.results import filter_results
 zinc_results = filter_results(results, dataset="zinc", complete=True)
 ```
 
-### Агрегация
+### Aggregation
 
 ```python
 from src.results import aggregate_by_seed
 
-# Агрегация по seeds
+# Aggregation over seeds
 aggregated = aggregate_by_seed(
     results,
     group_keys=["dataset", "model", "node_pe", "relative_pe"]
@@ -49,22 +49,22 @@ for agg in aggregated:
     print(f"{agg.group_values}: MAE = {agg.format_metric('mae')}")
 ```
 
-### Генерация таблиц
+### Table Generation
 
 ```python
 from src.results import make_performance_table, export_table
 
-# Создать таблицу
+# Create table
 table = make_performance_table(results, metrics=["mae", "loss"])
 
-# Экспорт в LaTeX
+# Export to LaTeX
 export_table(table, "results/tables/performance.tex", format="latex")
 
-# Экспорт в CSV
+# Export to CSV
 export_table(table, "results/tables/performance.csv", format="csv")
 ```
 
-### Генерация графиков
+### Plot Generation
 
 ```python
 from src.results import PlotGenerator, save_figure
@@ -82,61 +82,61 @@ save_figure(fig, "results/figures/ablation_heatmap")
 
 ## CLI
 
-### Генерация таблиц
+### Table Generation
 
 ```bash
-# Основная таблица производительности
+# Main performance table
 python scripts/make_tables.py --tables performance --output_format latex csv
 
-# Аблационная таблица
+# Ablation table
 python scripts/make_tables.py --tables ablation --ablation_key node_pe
 
-# Все таблицы для конкретного датасета
+# All tables for specific dataset
 python scripts/make_tables.py --tables all --dataset zinc --output_dir results/tables
 ```
 
-### Генерация графиков
+### Plot Generation
 
 ```bash
 # Performance vs distance
 python scripts/make_plots.py --plots performance_vs_distance --metric mae
 
-# Все графики
+# All plots
 python scripts/make_plots.py --plots all --output_dir results/figures
 
-# С фильтрацией
+# With filtering
 python scripts/make_plots.py --plots runtime_vs_accuracy --dataset peptides_func
 ```
 
-## Типы таблиц
+## Table Types
 
 ### Performance Table
-Основная таблица с метриками по всем экспериментам:
-- Группировка по Dataset, Model, Node PE, Relative PE
-- Агрегация по seeds (mean ± std)
-- Выбор метрик
+Main table with metrics for all experiments:
+- Grouping by Dataset, Model, Node PE, Relative PE
+- Aggregation over seeds (mean ± std)
+- Metric selection
 
 ### Ablation Table
-Таблица аблационного исследования:
-- Строки: значения базовой группы
-- Столбцы: значения ablation key × метрики
+Ablation study table:
+- Rows: base group values
+- Columns: ablation key × metrics
 
 ### Long-Range Table
-Таблица long-range производительности:
-- Метрики по distance buckets
+Long-range performance table:
+- Metrics per distance buckets
 - LR-AUC (area under curve)
 
 ### Efficiency Table
-Таблица efficiency vs accuracy:
-- Метрики качества
-- Время, память, параметры
+Efficiency vs accuracy table:
+- Quality metrics
+- Time, memory, parameters
 
-## Типы графиков
+## Plot Types
 
 ### Performance vs Distance
 - X: Graph distance
 - Y: Metric (MAE, accuracy)
-- Группировка по PE type
+- Grouping by PE type
 
 ### Performance vs Size
 - X: Parameters / Runtime / Memory
@@ -150,16 +150,16 @@ python scripts/make_plots.py --plots runtime_vs_accuracy --dataset peptides_func
 ### Depth vs Effective Distance
 - X: Number of layers
 - Y: Effective receptive field
-- По PE types
+- By PE types
 
 ### Ablation Heatmap
 - Rows: Node PE types
 - Columns: Relative PE types
 - Color: Metric value
 
-## Форматирование
+## Formatting
 
-### Именование метрик
+### Metric Naming
 ```python
 METRIC_FORMATS = {
     "mae": MetricFormat("MAE", precision=4, lower_is_better=True),
@@ -168,7 +168,7 @@ METRIC_FORMATS = {
 }
 ```
 
-### Именование PE
+### PE Naming
 ```python
 PE_NAMES = {
     "lap": "LapPE",
@@ -179,7 +179,7 @@ PE_NAMES = {
 }
 ```
 
-### Стили графиков
+### Plot Styles
 ```python
 style = PlotStyle(
     figure_size=(8, 6),
@@ -188,12 +188,12 @@ style = PlotStyle(
 )
 ```
 
-## LaTeX совместимость
+## LaTeX Compatibility
 
-Все LaTeX таблицы:
-- Компилируются с `article` или `report` class
-- Используют `booktabs` для линий
-- Готовы к включению через `\input{}`
+All LaTeX tables:
+- Compile with `article` or `report` class
+- Use `booktabs` for lines
+- Ready to include via `\input{}`
 
 ```latex
 \documentclass{article}
@@ -203,14 +203,14 @@ style = PlotStyle(
 \end{document}
 ```
 
-## Воспроизводимость
+## Reproducibility
 
-- Все выходные данные детерминированы
-- ID экспериментов встроены в результаты
-- Конфигурации сохраняются verbatim
-- Временные метки включены
+- All outputs are deterministic
+- Experiment IDs are embedded in results
+- Configurations are saved verbatim
+- Timestamps are included
 
-## Структура выходов
+## Output Structure
 
 ```
 results/
@@ -226,4 +226,3 @@ results/
         runtime_vs_accuracy.pdf
         ablation_heatmap.pdf
 ```
-

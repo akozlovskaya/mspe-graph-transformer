@@ -1,25 +1,25 @@
 # Training Pipeline
 
-Модуль обучения и оценки Graph Transformers с multi-scale positional encodings.
+Module for training and evaluating Graph Transformers with multi-scale positional encodings.
 
-## Структура
+## Structure
 
 ```
 src/training/
-├── __init__.py         # Публичный API модуля
-├── trainer.py          # Основной класс Trainer
-├── optimizer.py        # Конфигурация оптимизаторов
+├── __init__.py         # Public API of the module
+├── trainer.py          # Main Trainer class
+├── optimizer.py        # Optimizer configuration
 ├── scheduler.py        # Learning rate schedulers
-├── losses.py           # Функции потерь
-├── metrics.py          # Метрики оценки
+├── losses.py           # Loss functions
+├── metrics.py          # Evaluation metrics
 ├── loops.py            # Training/eval loops
-├── reproducibility.py  # Утилиты воспроизводимости
-└── README.md           # Документация
+├── reproducibility.py  # Reproducibility utilities
+└── README.md           # Documentation
 ```
 
-## Быстрый старт
+## Quick Start
 
-### Базовое обучение
+### Basic Training
 
 ```python
 from src.training import Trainer, get_optimizer, get_scheduler, get_loss_fn, get_metrics, set_seed
@@ -27,17 +27,17 @@ from src.dataset import get_dataset
 from src.models import get_model
 from torch_geometric.loader import DataLoader
 
-# Устанавливаем seed для воспроизводимости
+# Set seed for reproducibility
 set_seed(42)
 
-# Загружаем датасет
+# Load dataset
 dataset = get_dataset(name="zinc", root="data/")
 train_data, val_data, test_data = dataset.get_splits()
 
 train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
 val_loader = DataLoader(val_data, batch_size=32)
 
-# Создаём модель
+# Create model
 model = get_model(
     name="graph_transformer",
     num_features=dataset.num_features,
@@ -46,7 +46,7 @@ model = get_model(
     num_layers=6,
 )
 
-# Optimizer и scheduler
+# Optimizer and scheduler
 optimizer = get_optimizer(model, optimizer_type="adamw", lr=1e-4)
 scheduler = get_scheduler(optimizer, scheduler_type="cosine_warmup", total_epochs=100)
 
@@ -59,27 +59,27 @@ trainer = Trainer(
     checkpoint_dir="checkpoints/",
 )
 
-# Обучение
+# Training
 history = trainer.fit(train_loader, val_loader, epochs=100)
 ```
 
-### Использование скрипта
+### Using Scripts
 
 ```bash
-# Обучение
+# Training
 python scripts/train.py dataset=zinc model=graph_transformer pe=default
 
-# Оценка
+# Evaluation
 python scripts/evaluate.py checkpoint=logs/experiment/checkpoints/best.pt
 ```
 
 ## Trainer API
 
-### Инициализация
+### Initialization
 
 ```python
 trainer = Trainer(
-    model=model,                    # PyTorch модель
+    model=model,                    # PyTorch model
     optimizer=optimizer,            # Optimizer
     scheduler=scheduler,            # LR scheduler (optional)
     loss_fn=loss_fn,               # Loss function (optional, auto-inferred)
@@ -93,34 +93,34 @@ trainer = Trainer(
 )
 ```
 
-### Методы
+### Methods
 
 ```python
-# Одна эпоха обучения
+# One training epoch
 train_metrics = trainer.train_epoch(train_loader)
 
-# Одна эпоха валидации
+# One validation epoch
 val_metrics = trainer.eval_epoch(val_loader)
 
-# Полное обучение
+# Full training
 history = trainer.fit(
     train_loader=train_loader,
     val_loader=val_loader,
     epochs=100,
-    metric_for_best="loss",        # Метрика для best model
-    minimize_metric=True,          # Минимизировать метрику
+    metric_for_best="loss",        # Metric for best model
+    minimize_metric=True,          # Minimize metric
     early_stopping=20,             # Early stopping patience
 )
 
-# Чекпоинты
+# Checkpoints
 trainer.save_checkpoint("model.pt")
 trainer.load_checkpoint("model.pt")
 
-# Предсказания
+# Predictions
 predictions = trainer.predict(test_loader)
 ```
 
-## Функции потерь
+## Loss Functions
 
 ```python
 from src.training import get_loss_fn
@@ -136,7 +136,7 @@ loss_fn = get_loss_fn("classification", num_classes=2, loss_type="bce_logits")
 loss_fn = get_loss_fn("edge_prediction")
 ```
 
-## Метрики
+## Metrics
 
 ```python
 from src.training import get_metrics
@@ -151,7 +151,7 @@ metrics = get_metrics("classification", num_classes=2)
 metrics = get_metrics("edge_prediction")
 ```
 
-## Optimizer и Scheduler
+## Optimizer and Scheduler
 
 ### Optimizers
 
@@ -171,7 +171,7 @@ optimizer = get_optimizer(
 ```python
 from src.training import get_scheduler
 
-# Cosine decay с warmup
+# Cosine decay with warmup
 scheduler = get_scheduler(
     optimizer,
     scheduler_type="cosine_warmup",
@@ -189,23 +189,23 @@ scheduler = get_scheduler(
 )
 ```
 
-## Воспроизводимость
+## Reproducibility
 
 ```python
 from src.training import set_seed, ReproducibilityContext
 
-# Установка seed
+# Set seed
 set_seed(42, deterministic=True)
 
-# Контекст для воспроизводимости
+# Reproducibility context
 with ReproducibilityContext(seed=123):
-    # Код внутри будет воспроизводимым
+    # Code inside will be reproducible
     result = train_model(...)
 ```
 
 ## Checkpointing
 
-Формат чекпоинта:
+Checkpoint format:
 
 ```python
 {
@@ -222,7 +222,7 @@ with ReproducibilityContext(seed=123):
 
 ## Logging Hooks
 
-Поддержка TensorBoard и Weights & Biases:
+Support for TensorBoard and Weights & Biases:
 
 ```python
 # TensorBoard
@@ -247,7 +247,7 @@ def wandb_hook(metrics, step, prefix):
 trainer.add_log_hook(wandb_hook)
 ```
 
-## Конфигурация через Hydra
+## Configuration via Hydra
 
 ```yaml
 # configs/config.yaml
@@ -268,7 +268,7 @@ training:
     min_lr: 1e-6
 ```
 
-## Полезные утилиты
+## Useful Utilities
 
 ```python
 from src.training import (
@@ -283,13 +283,12 @@ early_stop = EarlyStopping(patience=10, mode="min")
 if early_stop(val_loss):
     break
 
-# Gradient accumulation (для больших batch sizes)
+# Gradient accumulation (for large batch sizes)
 accumulator = GradientAccumulator(accumulation_steps=4)
 
 # Device selection
-device = get_device()  # Автоматически выбирает CUDA если доступен
+device = get_device()  # Automatically selects CUDA if available
 
 # Model info
-log_model_info(model)  # Логирует количество параметров
+log_model_info(model)  # Logs number of parameters
 ```
-
