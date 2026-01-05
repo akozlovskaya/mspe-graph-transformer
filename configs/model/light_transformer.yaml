@@ -1,0 +1,20 @@
+# Light Graph Transformer configuration
+# Optimized for fast CPU experiments and quick prototyping
+# Minimal memory footprint, fast training
+
+name: graph_transformer  # Model type (used in get_model factory)
+display_name: light_transformer  # Display name for logging
+hidden_dim: 64          # Small hidden dimension (vs 256 in default)
+num_layers: 2          # Only 2 layers (vs 6 in default)
+num_heads: 4           # Fewer attention heads (vs 8 in default)
+dropout: 0.1
+ffn_dim: 128           # Small FFN (vs 512 in default)
+layer_norm: true
+pre_norm: true
+residual: true
+task: graph
+
+# Additional optimizations for speed
+mpnn_type: gin         # GIN is fastest among MPNN options
+gate_type: scalar      # Scalar gate is faster than vector/mlp
+

@@ -1,0 +1,15 @@
+# Light PE configuration for fast experiments
+# Minimal PE to reduce computation time
+
+node:
+  type: rwse          # RWSE is faster than combined/lap/hks
+  dim: 16            # Smaller PE dimension (vs 32 in default)
+  rwse:
+    scales: [1, 2, 4]  # Fewer scales (vs [1,2,4,8,16] in default)
+
+relative:
+  type: spd
+  num_buckets: 16    # Fewer buckets (vs 32 in default)
+  max_distance: 5    # Shorter max distance (vs 10 in default)
+  symmetric: true
+

@@ -1,0 +1,25 @@
+# Light training configuration for fast experiments
+# Optimized for CPU and quick prototyping
+
+epochs: 20            # Fewer epochs for quick tests (vs 100 in default)
+batch_size: 64        # Larger batch for CPU efficiency
+num_workers: 0        # 0 workers for CPU (avoids multiprocessing overhead)
+grad_clip: 1.0
+mixed_precision: false
+log_every: 10         # More frequent logging for quick experiments
+metric_for_best: loss
+minimize_metric: true
+early_stopping: 5     # Early stopping after 5 epochs without improvement
+
+optimizer:
+  type: adamw
+  lr: 1e-3            # Slightly higher LR for faster convergence
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+  eps: 1e-8
+
+scheduler:
+  type: step          # Step scheduler is simpler than cosine_warmup
+  step_size: 5
+  gamma: 0.5
+

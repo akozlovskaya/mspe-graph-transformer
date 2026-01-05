@@ -1,0 +1,24 @@
+# Light experiment configuration for fast CPU experiments
+# Combines light model, light PE, and light training settings
+
+defaults:
+  - train: light
+  - model: light_transformer
+  - dataset: default
+  - pe: light
+  - _self_
+
+# Override global settings for fast experiments
+seed: 42
+device: cpu  # Force CPU usage
+deterministic: true
+output_dir: ./outputs
+experiment_name: light_experiment
+
+# Disable expensive operations
+run_long_range: false
+run_profiling: false
+
+# Logging
+log_dir: ./logs
+log_every: 10

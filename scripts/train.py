@@ -161,7 +161,9 @@ def create_model(cfg: DictConfig, dataset) -> torch.nn.Module:
         model_cfg["relative_pe_dim"] = pe_cfg.relative.num_buckets
 
     model = get_model(**model_cfg)
-    log_model_info(model, name=model_cfg.get("name", "Model"))
+    # Use display_name for logging if available, otherwise use name
+    model_display_name = model_cfg.get("display_name") or model_cfg.get("name", "Model")
+    log_model_info(model, name=model_display_name)
 
     return model
 

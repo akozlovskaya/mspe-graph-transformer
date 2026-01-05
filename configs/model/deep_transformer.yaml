@@ -1,5 +1,6 @@
 # Deep Graph Transformer (12-16 layers) configuration
-name: graph_transformer
+name: graph_transformer  # Model type (used in get_model factory)
+display_name: deep_transformer  # Display name for logging
 hidden_dim: 256
 num_layers: 12
 num_heads: 8
