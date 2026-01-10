@@ -78,63 +78,129 @@ pip install torch-geometric
 
 ---
 
+## Dataset Setup
+
+Before running experiments, you need to download datasets and optionally precompute positional encodings.
+
+### Downloading Datasets
+
+Download datasets using the download script:
+
+```bash
+# Download a specific dataset
+python scripts/download_datasets.py dataset=zinc
+
+# Download multiple datasets
+python scripts/download_datasets.py dataset=zinc
+python scripts/download_datasets.py dataset=qm9
+python scripts/download_datasets.py dataset=peptides_func
+
+# Download with custom root directory
+python scripts/download_datasets.py dataset=peptides_func root=./data
+```
+
+**Note:** Datasets are automatically downloaded by PyTorch Geometric on first access, but using the download script allows you to:
+- Pre-download datasets before experiments
+- Verify dataset integrity
+- Check dataset statistics
+
+### Precomputing Positional Encodings (Optional but Recommended)
+
+For faster training, you can precompute PE for datasets:
+
+```bash
+# Precompute PE with default configuration
+python scripts/preprocess_pe.py dataset=zinc pe=default
+
+# Precompute PE with custom configuration
+python scripts/preprocess_pe.py dataset=zinc pe=mspe pe_cache_dir=./data/pe_cache
+
+# For synthetic datasets
+python scripts/preprocess_pe.py dataset=synthetic/pairwise_distance pe=light
+```
+
+Preprocessed data is saved to `{pe_cache_dir}/{dataset_name}/` (defaults to `{dataset.root}/pe_cache/{dataset_name}/`) and can be loaded faster during training. The training script will automatically use preprocessed PE if available (controlled by `use_preprocessed_pe: true` in config).
+
+**Benefits of preprocessing:**
+- Faster training startup (PE computed once, not on-the-fly)
+- Consistent PE across experiments
+- Ability to experiment with different PE configurations without recomputing
+
+**Note:** If you skip preprocessing, PE will be computed on-the-fly during training, which is slower but works fine for small datasets.
+
+---
+
 ## Repository Structure
 
 ```
 mspe-graph-transformer/
-├── configs/                    # Hydra configuration files
-│   ├── config.yaml            # Main config
-│   ├── dataset/               # Dataset configs
-│   │   └── synthetic/        # Synthetic benchmark configs
-│   ├── model/                 # Model configs
-│   ├── pe/                    # PE configs
-│   ├── train/                 # Training configs
-│   └── experiments/           # Predefined experiments
-│       └── synthetic/         # Synthetic experiment configs
-├── data/                      # Data directory (auto-created)
+├── configs/                          # Hydra configuration files
+│   ├── config.yaml                   # Main config
+│   ├── dataset/                      # Dataset configs
+│   │   └── synthetic/                # Synthetic benchmark configs
+│   ├── model/                        # Model configs
+│   ├── pe/                           # PE configs
+│   ├── train/                        # Training configs
+│   └── experiments/                  # Predefined experiments
+│       └── synthetic/                 # Synthetic experiment configs
+├── data/                             # Data directory (auto-created)
 ├── src/
-│   ├── dataset/               # Dataset loaders and transforms
+│   ├── dataset/                      # Dataset loaders and transforms
 │   ├── pe/
-│   │   ├── node/             # Node-wise PEs (LapPE, RWSE, HKS)
-│   │   └── relative/         # Relative PEs (SPD, Diffusion)
-│   ├── models/               # Model architectures
-│   ├── training/             # Training loop and utilities
-│   ├── evaluation/           # Evaluation and long-range analysis
-│   ├── experiments/          # Experiment orchestration
-│   ├── profiling/            # Efficiency profiling
-│   ├── results/              # Result processing and visualization
-│   └── utils/                # Common utilities
-├── scripts/                   # CLI scripts
-│   ├── train.py              # Training script
-│   ├── evaluate.py           # Evaluation script
-│   ├── run_experiment.py     # Single experiment
-│   ├── run_sweep.py          # Sweep execution
-│   ├── make_tables.py        # Generate tables
-│   ├── make_plots.py         # Generate figures
-│   └── validate_thesis_pipeline.py  # Validation
-├── thesis/                    # Thesis alignment files
-│   ├── figures_map.yaml      # Figure to experiment mapping
-│   └── tables_map.yaml       # Table to experiment mapping
-├── tests/                     # Unit and integration tests
-├── notebooks/                 # Jupyter notebooks
-├── outputs/                   # Experiment outputs (auto-created)
-└── results/                   # Generated tables and figures
+│   │   ├── node/                     # Node-wise PEs (LapPE, RWSE, HKS)
+│   │   └── relative/                 # Relative PEs (SPD, Diffusion)
+│   ├── models/                       # Model architectures
+│   ├── training/                     # Training loop and utilities
+│   ├── evaluation/                   # Evaluation and long-range analysis
+│   ├── experiments/                  # Experiment orchestration
+│   ├── profiling/                    # Efficiency profiling
+│   ├── results/                      # Result processing and visualization
+│   └── utils/                        # Common utilities
+├── scripts/                          # CLI scripts
+│   ├── download_datasets.py           # Download datasets
+│   ├── preprocess_pe.py              # Precompute positional encodings
+│   ├── train.py                      # Training script
+│   ├── evaluate.py                   # Evaluation script
+│   ├── run_experiment.py             # Single experiment
+│   ├── run_sweep.py                  # Sweep execution
+│   ├── make_tables.py                # Generate tables
+│   ├── make_plots.py                 # Generate figures
+│   └── validate_thesis_pipeline.py   # Validation
+├── thesis/                           # Thesis alignment files
+│   ├── figures_map.yaml              # Figure to experiment mapping
+│   └── tables_map.yaml               # Table to experiment mapping
+├── tests/                            # Unit and integration tests
+├── notebooks/                        # Jupyter notebooks
+├── outputs/                          # Experiment outputs (auto-created)
+└── results/                          # Generated tables and figures
 ```
 
 ---
 
 ## Quick Start
 
+### 0. Download Datasets (First Time Only)
+
+Before training, download the datasets you need:
+
+```bash
+# Download ZINC dataset
+python scripts/download_datasets.py dataset=zinc
+
+# Optionally precompute PE for faster training
+python scripts/preprocess_pe.py dataset=zinc pe=default
+```
+
 ### 1. Train a Model
 
 ```bash
 # Basic training
-python scripts/train.py dataset=zinc model=graph_transformer pe=mspe
+python scripts/train.py dataset=zinc model=default pe=mspe
 
 # With custom parameters
 python scripts/train.py \
     dataset=peptides_func \
-    model=graph_transformer \
+    model=default \
     model.num_layers=8 \
     pe.node.type=combined \
     training.epochs=200
@@ -187,7 +253,21 @@ python scripts/run_experiment.py experiment=synthetic/cross_graph_generalization
 
 ## Reproducing Thesis Results
 
-All thesis results can be reproduced using predefined experiment configurations:
+All thesis results can be reproduced using predefined experiment configurations.
+
+**Prerequisites:** Before running experiments, download required datasets:
+
+```bash
+# Download all datasets used in thesis
+python scripts/download_datasets.py dataset=zinc
+python scripts/download_datasets.py dataset=qm9
+python scripts/download_datasets.py dataset=peptides_func
+python scripts/download_datasets.py dataset=peptides_struct
+
+# Optionally precompute PE for faster experiments
+python scripts/preprocess_pe.py dataset=zinc pe=mspe
+python scripts/preprocess_pe.py dataset=peptides_func pe=mspe
+```
 
 ### Main Performance Table (Table 4.1)
 
@@ -317,7 +397,7 @@ The project uses Hydra for configuration management. Key config groups:
 # configs/config.yaml
 defaults:
   - dataset: zinc
-  - model: graph_transformer
+  - model: default
   - pe: mspe
   - train: default
 

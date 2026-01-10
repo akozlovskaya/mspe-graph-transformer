@@ -1,5 +1,6 @@
 # Multi-Scale Positional Encodings configuration
 node:
+  enabled: true
   type: combined
   dim: 64
   lap:
@@ -14,6 +15,7 @@ node:
     features: [degree, clustering, kcore]
 
 relative:
+  enabled: true
   type: spd
   num_buckets: 32
   max_distance: 10

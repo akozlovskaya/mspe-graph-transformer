@@ -22,6 +22,7 @@ wheels/
 
 # Scripts and notebooks
 scripts/download_zinc.py
+scripts/test_synthetic.py
 PROJECT_OVERVIEW.md
 check_datasets.ipynb
 vis_maga.ipynb

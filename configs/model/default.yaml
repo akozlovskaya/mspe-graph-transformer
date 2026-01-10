@@ -1,11 +1,14 @@
 # Default model configuration
-name: graph_transformer
-hidden_dim: 256
-num_layers: 6
-num_heads: 8
-dropout: 0.1
-ffn_dim: 512
-layer_norm: true
-pre_norm: true
-residual: true
-task: graph  # graph, node, edge
+# This config is loaded via defaults: - model: default in main config files
+# All parameters here become part of cfg.model in the final config
+
+name: graph_transformer  # Model type identifier (used in get_model factory function)
+hidden_dim: 256         # Hidden dimension for node embeddings (size of node feature vectors)
+num_layers: 6           # Number of Graph Transformer layers (depth of the model)
+num_heads: 8            # Number of attention heads in multi-head attention
+dropout: 0.1            # Dropout probability (applied to attention and FFN)
+ffn_dim: 512            # Feed-forward network dimension (typically 2x hidden_dim)
+layer_norm: true        # Whether to use layer normalization
+pre_norm: true          # Whether to use pre-layer normalization (true) or post-norm (false)
+residual: true          # Whether to use residual connections
+task: graph             # Task type: "graph" (graph-level prediction), "node" (node-level), "edge" (edge-level)

@@ -152,16 +152,23 @@ class ClassificationMetrics:
 
         if self.task == "binary":
             # Binary classification
-            pred_np = pred.numpy().flatten()
-            target_np = target.numpy().flatten()
-
-            # Apply sigmoid if needed
-            if pred_np.min() < 0 or pred_np.max() > 1:
-                pred_probs = torch.sigmoid(pred).numpy().flatten()
+            pred_np = pred.numpy()
+            target_np = target.numpy().flatten().astype(int)  # Ensure target is integer
+            
+            # Handle case when pred is [B, 2] (logits for 2 classes)
+            if pred_np.ndim == 2 and pred_np.shape[1] == 2:
+                # Use softmax to get probabilities, then use class 1 probability
+                pred_probs = torch.softmax(pred, dim=1).numpy()[:, 1]
+                pred_labels = pred_np.argmax(axis=1).astype(int)
             else:
-                pred_probs = pred_np
-
-            pred_labels = (pred_probs > 0.5).astype(int)
+                # Handle case when pred is [B, 1] or [B] (single logit)
+                pred_np = pred_np.flatten()
+                # Apply sigmoid if needed
+                if pred_np.min() < 0 or pred_np.max() > 1:
+                    pred_probs = torch.sigmoid(pred).numpy().flatten()
+                else:
+                    pred_probs = pred_np
+                pred_labels = (pred_probs > 0.5).astype(int)
 
             metrics["accuracy"] = float(accuracy_score(target_np, pred_labels))
             metrics["f1"] = float(f1_score(target_np, pred_labels, zero_division=0))

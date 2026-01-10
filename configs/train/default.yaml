@@ -1,22 +1,25 @@
 # Default training configuration
-epochs: 100
-batch_size: 32
-num_workers: 4
-grad_clip: 1.0
-mixed_precision: false
-log_every: 50
-metric_for_best: loss
-minimize_metric: true
-early_stopping: 20
+# This config is loaded via defaults: - train: default in main config files
+# All parameters here become part of cfg.train in the final config
+
+epochs: 100              # Number of training epochs
+batch_size: 32           # Batch size for training (number of graphs per batch)
+num_workers: 4           # Number of data loading workers (0 = single-threaded, >0 = multiprocessing)
+grad_clip: 1.0           # Gradient clipping threshold (None = disabled, >0 = clip gradients to this norm)
+mixed_precision: false   # Whether to use mixed precision training (AMP) for faster training on modern GPUs
+log_every: 50            # Log training metrics every N batches (0 = disable logging during training)
+metric_for_best: loss    # Metric to use for selecting best model checkpoint ("loss", "accuracy", "mae", etc.)
+minimize_metric: true    # Whether to minimize (true) or maximize (false) the metric_for_best
+early_stopping: 20       # Early stopping patience (stop if no improvement for N epochs, None = disabled)
 
 optimizer:
-  type: adamw
-  lr: 1e-4
-  weight_decay: 0.01
-  betas: [0.9, 0.999]
-  eps: 1e-8
+  type: adamw            # Optimizer type: "adam", "adamw", "sgd"
+  lr: 1e-4              # Learning rate
+  weight_decay: 0.01     # Weight decay (L2 regularization) coefficient
+  betas: [0.9, 0.999]    # Adam/AdamW beta parameters (momentum and second moment decay rates)
+  eps: 1e-8             # Adam/AdamW epsilon (numerical stability term)
 
 scheduler:
-  type: cosine_warmup
-  warmup_epochs: 10
-  min_lr: 1e-6
+  type: cosine_warmup   # Scheduler type: "cosine_warmup", "step", "cosine", "linear", "none"
+  warmup_epochs: 10     # Number of warmup epochs (for cosine_warmup, linearly increases LR from 0 to target)
+  min_lr: 1e-6          # Minimum learning rate (for cosine schedulers, LR decays to this value)

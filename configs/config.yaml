@@ -1,47 +1,39 @@
 # Main configuration file
+# This is the default configuration used by scripts when no other config is specified
+# All parameters can be overridden via command line or by using a different config file
+
 defaults:
-  - train: default
-  - model: default
-  - dataset: default
-  - pe: default
-  - optional experiments: null
-  - _self_
+  - train: default       # Loads configs/train/default.yaml (creates cfg.train)
+  - model: default       # Loads configs/model/default.yaml (creates cfg.model)
+  - dataset: default     # Loads configs/dataset/default.yaml (creates cfg.dataset)
+  - pe: default         # Loads configs/pe/default.yaml (creates cfg.pe)
+  - optional experiments: null  # Optional experiments config (can be overridden)
+  - _self_              # Allows overriding parameters in this file
 
 # Global settings
-seed: 42
-device: null  # null = auto-select (CUDA if available, else CPU)
-deterministic: true
-output_dir: ./outputs
-experiment_name: experiment
+seed: 42                 # Random seed for reproducibility (used for dataset generation, model initialization, data shuffling)
+device: null            # Device selection: null = auto-select (CUDA if available, else CPU), "cuda" = force CUDA, "cpu" = force CPU
+deterministic: true      # Enable deterministic operations (slower but reproducible, sets torch.backends.cudnn.deterministic)
+output_dir: ./outputs   # Base directory for experiment outputs (checkpoints, logs, results)
+experiment_name: experiment  # Name of this experiment (used for subdirectories and logging)
 
 # Experiment options
-resume: false
-run_long_range: true
-run_profiling: false
+resume: false           # Whether to resume training from checkpoint (if true, loads latest checkpoint from output_dir)
+run_long_range: true    # Whether to run long-range dependency analysis after training (evaluates model on node pairs at different distances)
+run_profiling: false    # Whether to run performance profiling (memory, FLOPs, runtime) after training
 
 # Logging
-log_dir: ./logs
-log_every: 50
+log_dir: ./logs         # Directory for training logs and saved configurations
+log_every: 50           # Log training metrics every N batches (0 = disable logging during training)
 
-# Training settings (can be overridden)
-training:
-  epochs: 100
-  batch_size: 32
-  num_workers: 4
-  grad_clip: 1.0
-  mixed_precision: false
-  metric_for_best: loss
-  minimize_metric: true
-  early_stopping: 20
+# PE preprocessing
+pe_cache_dir: null      # Directory for precomputed PE cache (null = {dataset.root}/pe_cache)
+                        # If set, preprocessed PE will be saved/loaded from this directory
+                        # Use scripts/preprocess_pe.py to precompute PE for faster training
+use_preprocessed_pe: true  # Whether to use preprocessed PE if available in cache
+                        # If true and cache exists with matching PE config, loads from cache (faster)
+                        # If false or cache missing, computes PE on-the-fly during training
 
-  optimizer:
-    type: adamw
-    lr: 1e-4
-    weight_decay: 0.01
-    betas: [0.9, 0.999]
-    eps: 1e-8
-
-  scheduler:
-    type: cosine_warmup
-    warmup_epochs: 10
-    min_lr: 1e-6
+# Note: Training settings are loaded from configs/train/default.yaml via defaults: - train: default
+# The training section is automatically created as cfg.train from that file
+# To override specific training parameters, add a train: section here

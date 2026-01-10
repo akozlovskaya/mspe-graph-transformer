@@ -82,10 +82,15 @@ def create_dataloaders(
         dataset_kwargs["seed"] = seed
     
     # Load dataset
+    pe_cache_dir = cfg.get("pe_cache_dir", None)  # Defaults to {root}/pe_cache
+    use_preprocessed_pe = cfg.get("use_preprocessed_pe", True)  # Try to use preprocessed PE by default
+    
     dataset = get_dataset(
         name=cfg.dataset.name,
         root=cfg.dataset.get("root", "data/"),
         pe_config=pe_config if pe_config else None,
+        pe_cache_dir=pe_cache_dir,
+        use_preprocessed_pe=use_preprocessed_pe,
         **dataset_kwargs,
     )
 
@@ -101,8 +106,9 @@ def create_dataloaders(
         raise ValueError("Test dataset is None. Cannot create test dataloader.")
 
     # Create dataloaders
-    batch_size = cfg.training.get("batch_size", 32)
-    num_workers = cfg.training.get("num_workers", 4)
+    # In Hydra, defaults: - train: <name> creates cfg.train
+    batch_size = cfg.train.batch_size
+    num_workers = cfg.train.num_workers
 
     train_loader = DataLoader(
         train_data,
@@ -197,11 +203,12 @@ def main(cfg: DictConfig) -> None:
     model = create_model(cfg, dataset)
 
     # Create optimizer
-    optimizer = get_optimizer_from_config(model, OmegaConf.to_container(cfg.training.optimizer, resolve=True))
+    # In Hydra, defaults: - train: <name> creates cfg.train
+    optimizer = get_optimizer_from_config(model, OmegaConf.to_container(cfg.train.optimizer, resolve=True))
 
     # Create scheduler
-    scheduler_cfg = OmegaConf.to_container(cfg.training.get("scheduler", {}), resolve=True)
-    scheduler_cfg["total_epochs"] = cfg.training.epochs
+    scheduler_cfg = OmegaConf.to_container(cfg.train.scheduler, resolve=True)
+    scheduler_cfg["total_epochs"] = cfg.train.epochs
     scheduler = get_scheduler_from_config(optimizer, scheduler_cfg)
 
     # Create loss function
@@ -209,7 +216,7 @@ def main(cfg: DictConfig) -> None:
     num_classes = dataset.num_classes
     loss_fn = get_loss_fn(
         task_type=task_type,
-        loss_type=cfg.training.get("loss_type"),
+        loss_type=cfg.train.get("loss_type", None),
         num_classes=num_classes,
     )
 
@@ -226,9 +233,9 @@ def main(cfg: DictConfig) -> None:
         device=device,
         task_type=task_type,
         num_classes=num_classes,
-        grad_clip=cfg.training.get("grad_clip"),
-        mixed_precision=cfg.training.get("mixed_precision", False),
-        log_every=cfg.training.get("log_every", 50),
+        grad_clip=cfg.train.grad_clip,
+        mixed_precision=cfg.train.mixed_precision,
+        log_every=cfg.train.log_every,
         checkpoint_dir=str(log_dir / "checkpoints"),
         experiment_name=cfg.get("experiment_name", "experiment"),
     )
@@ -242,10 +249,10 @@ def main(cfg: DictConfig) -> None:
     history = trainer.fit(
         train_loader=train_loader,
         val_loader=val_loader,
-        epochs=cfg.training.epochs,
-        metric_for_best=cfg.training.get("metric_for_best", "loss"),
-        minimize_metric=cfg.training.get("minimize_metric", True),
-        early_stopping=cfg.training.get("early_stopping"),
+        epochs=cfg.train.epochs,
+        metric_for_best=cfg.train.metric_for_best,
+        minimize_metric=cfg.train.minimize_metric,
+        early_stopping=cfg.train.early_stopping,
     )
 
     # Final evaluation on test set

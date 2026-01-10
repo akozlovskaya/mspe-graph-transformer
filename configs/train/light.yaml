@@ -1,25 +1,25 @@
 # Light training configuration for fast experiments
 # Optimized for CPU and quick prototyping
+# This config is loaded via defaults: - train: light in experiment configs
 
-epochs: 20            # Fewer epochs for quick tests (vs 100 in default)
-batch_size: 64        # Larger batch for CPU efficiency
-num_workers: 0        # 0 workers for CPU (avoids multiprocessing overhead)
-grad_clip: 1.0
-mixed_precision: false
-log_every: 10         # More frequent logging for quick experiments
-metric_for_best: loss
-minimize_metric: true
-early_stopping: 5     # Early stopping after 5 epochs without improvement
+epochs: 20               # Fewer epochs for quick tests (vs 100 in default)
+batch_size: 64           # Larger batch for CPU efficiency (CPU benefits from larger batches)
+num_workers: 0           # 0 workers for CPU (avoids multiprocessing overhead on CPU)
+grad_clip: 1.0           # Gradient clipping threshold (same as default)
+mixed_precision: false   # Mixed precision disabled (not beneficial on CPU)
+log_every: 10            # More frequent logging for quick experiments (vs 50 in default)
+metric_for_best: loss    # Metric to use for selecting best model checkpoint
+minimize_metric: true    # Whether to minimize the metric_for_best
+early_stopping: 5        # Early stopping after 5 epochs without improvement (vs 20 in default)
 
 optimizer:
-  type: adamw
-  lr: 1e-3            # Slightly higher LR for faster convergence
-  weight_decay: 0.01
-  betas: [0.9, 0.999]
-  eps: 1e-8
+  type: adamw            # Optimizer type: "adam", "adamw", "sgd"
+  lr: 1e-3              # Slightly higher LR for faster convergence (vs 1e-4 in default)
+  weight_decay: 0.01     # Weight decay (L2 regularization) coefficient
+  betas: [0.9, 0.999]    # Adam/AdamW beta parameters (momentum and second moment decay rates)
+  eps: 1e-8             # Adam/AdamW epsilon (numerical stability term)
 
 scheduler:
-  type: step          # Step scheduler is simpler than cosine_warmup
-  step_size: 5
-  gamma: 0.5
-
+  type: step             # Step scheduler is simpler than cosine_warmup (faster to compute)
+  step_size: 5           # Reduce LR every N epochs
+  gamma: 0.5             # Multiply LR by this factor at each step

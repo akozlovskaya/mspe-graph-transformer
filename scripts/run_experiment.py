@@ -41,7 +41,7 @@ def config_from_hydra(cfg: DictConfig) -> ExperimentConfig:
         dataset=OmegaConf.to_container(cfg.get("dataset", {}), resolve=True),
         model=OmegaConf.to_container(cfg.get("model", {}), resolve=True),
         pe=OmegaConf.to_container(cfg.get("pe", {}), resolve=True),
-        training=OmegaConf.to_container(cfg.get("training", {}), resolve=True),
+        training=OmegaConf.to_container(cfg.get("train", {}), resolve=True),
         seed=cfg.get("seed", 42),
         tags=list(cfg.get("tags", [])),
         description=cfg.get("description", ""),

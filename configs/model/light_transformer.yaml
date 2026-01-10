@@ -1,20 +1,20 @@
 # Light Graph Transformer configuration
 # Optimized for fast CPU experiments and quick prototyping
 # Minimal memory footprint, fast training
+# This config is loaded via defaults: - model: light_transformer in experiment configs
 
-name: graph_transformer  # Model type (used in get_model factory)
-display_name: light_transformer  # Display name for logging
-hidden_dim: 64          # Small hidden dimension (vs 256 in default)
-num_layers: 2          # Only 2 layers (vs 6 in default)
-num_heads: 4           # Fewer attention heads (vs 8 in default)
-dropout: 0.1
-ffn_dim: 128           # Small FFN (vs 512 in default)
-layer_norm: true
-pre_norm: true
-residual: true
-task: graph
+name: graph_transformer  # Model type identifier (used in get_model factory function)
+display_name: light_transformer  # Display name for logging (shown in model info logs)
+hidden_dim: 64          # Small hidden dimension (vs 256 in default) - reduces memory and computation
+num_layers: 2           # Only 2 layers (vs 6 in default) - faster forward/backward passes
+num_heads: 4            # Fewer attention heads (vs 8 in default) - reduces attention computation
+dropout: 0.1            # Dropout probability (applied to attention and FFN)
+ffn_dim: 128            # Small FFN dimension (vs 512 in default) - reduces FFN computation
+layer_norm: true        # Whether to use layer normalization
+pre_norm: true          # Whether to use pre-layer normalization (true) or post-norm (false)
+residual: true         # Whether to use residual connections
+task: graph             # Task type: "graph" (graph-level prediction), "node" (node-level), "edge" (edge-level)
 
 # Additional optimizations for speed
-mpnn_type: gin         # GIN is fastest among MPNN options
-gate_type: scalar      # Scalar gate is faster than vector/mlp
-
+mpnn_type: gin          # MPNN type: "gin" (fastest), "gcn", "gat" - GIN is fastest among MPNN options
+gate_type: scalar       # Gate type for mixing MPNN and attention: "scalar" (fastest), "vector", "mlp"

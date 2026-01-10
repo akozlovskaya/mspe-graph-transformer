@@ -1,6 +1,12 @@
 # Default dataset configuration
-name: zinc
-root: ./data
-task_type: regression
-target_idx: 0
-normalize_targets: true
+# This config is loaded via defaults: - dataset: default in main config files
+# All parameters here become part of cfg.dataset in the final config
+
+name: zinc              # Dataset name (used in get_dataset factory function)
+                        # Supported: "zinc", "qm9", "peptides_func", "peptides_struct", 
+                        # "pascalvoc_sp", "cifar10_sp", "ogbg-molhiv", "ogbg-molpcba",
+                        # "pcqm4m", "pcqm-contact", "synthetic_*" (various synthetic graph types)
+root: ./data            # Root directory where dataset is stored or will be downloaded
+task_type: regression    # Task type: "regression" (continuous targets), "classification" (discrete classes), "multilabel" (multi-class)
+target_idx: 0           # Target index for multi-target datasets (e.g., QM9 has multiple properties, this selects which one)
+normalize_targets: true # Whether to normalize target values (subtract mean, divide by std) - useful for regression tasks

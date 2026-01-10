@@ -1,24 +1,37 @@
 # Light experiment configuration for fast CPU experiments
 # Combines light model, light PE, and light training settings
+# This config is optimized for quick prototyping and testing on CPU
 
 defaults:
-  - train: light
-  - model: light_transformer
-  - dataset: default
-  - pe: light
-  - _self_
+  - train: light          # Loads configs/train/light.yaml (creates cfg.train)
+  - model: light_transformer  # Loads configs/model/light_transformer.yaml (creates cfg.model)
+  - dataset: default      # Loads configs/dataset/default.yaml (creates cfg.dataset)
+  - pe: light            # Loads configs/pe/light.yaml (creates cfg.pe)
+  - _self_               # Allows overriding parameters in this file
 
-# Override global settings for fast experiments
-seed: 42
-device: cpu  # Force CPU usage
-deterministic: true
-output_dir: ./outputs
-experiment_name: light_experiment
+# Global settings
+seed: 42                  # Random seed for reproducibility (used for dataset generation, model initialization, data shuffling)
+device: cpu              # Force CPU usage (set to null for auto-select: CUDA if available, else CPU)
+deterministic: true       # Enable deterministic operations (slower but reproducible)
+output_dir: ./outputs    # Base directory for experiment outputs (checkpoints, logs, results)
+experiment_name: light_experiment  # Name of this experiment (used for subdirectories and logging)
 
-# Disable expensive operations
-run_long_range: false
-run_profiling: false
+# Experiment options
+resume: false            # Whether to resume training from checkpoint (if true, loads latest checkpoint from output_dir)
+run_long_range: false    # Whether to run long-range dependency analysis after training (disabled for fast experiments)
+run_profiling: false     # Whether to run performance profiling (memory, FLOPs, runtime) after training
 
 # Logging
-log_dir: ./logs
-log_every: 10
+log_dir: ./logs          # Directory for training logs and saved configurations
+log_every: 10            # Log training metrics every N batches (more frequent for quick experiments)
+
+# PE preprocessing
+pe_cache_dir: null       # Directory for precomputed PE cache (null = {dataset.root}/pe_cache)
+                         # If set, preprocessed PE will be saved/loaded from this directory
+use_preprocessed_pe: true  # Whether to use preprocessed PE if available in cache
+                         # If true and cache exists with matching PE config, loads from cache (faster)
+                         # If false or cache missing, computes PE on-the-fly during training
+
+# Note: Training settings are loaded from configs/train/light.yaml via defaults: - train: light
+# The training section is automatically created as cfg.train from that file
+# To override specific training parameters, add a train: section here

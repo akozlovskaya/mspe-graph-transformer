@@ -105,3 +105,48 @@ class InMemoryGraphDataset(Dataset):
         else:
             raise IndexError(f"Index {idx} out of range for dataset of size {len(self.data_list) if self.data_list else 0}")
 
+
+class PreprocessedPEDatasetWrapper(BaseGraphDataset):
+    """Wrapper for datasets with preprocessed PE."""
+
+    def __init__(
+        self,
+        train_dataset: Dataset,
+        val_dataset: Dataset,
+        test_dataset: Dataset,
+        base_dataset: BaseGraphDataset,
+    ):
+        """
+        Initialize wrapper with preprocessed PE datasets.
+
+        Args:
+            train_dataset: Train dataset with preprocessed PE.
+            val_dataset: Validation dataset with preprocessed PE.
+            test_dataset: Test dataset with preprocessed PE.
+            base_dataset: Original dataset (for metadata).
+        """
+        super().__init__(
+            root=base_dataset.root,
+            transform=None,  # PE already applied
+            pre_transform=None,
+            pe_config=base_dataset.pe_config,
+        )
+        self.train_dataset = train_dataset
+        self.val_dataset = val_dataset
+        self.test_dataset = test_dataset
+        self._base_dataset = base_dataset
+
+    def load(self) -> Tuple[Dataset, Dataset, Dataset]:
+        """Load preprocessed splits."""
+        return self.train_dataset, self.val_dataset, self.test_dataset
+
+    @property
+    def num_features(self) -> int:
+        """Number of node features."""
+        return self._base_dataset.num_features
+
+    @property
+    def num_classes(self) -> int:
+        """Number of classes."""
+        return self._base_dataset.num_classes
+

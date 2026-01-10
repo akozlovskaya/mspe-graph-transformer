@@ -1,15 +1,17 @@
 # Light PE configuration for fast experiments
 # Minimal PE to reduce computation time
+# This config is loaded via defaults: - pe: light in experiment configs
 
 node:
-  type: rwse          # RWSE is faster than combined/lap/hks
-  dim: 16            # Smaller PE dimension (vs 32 in default)
+  enabled: true         # Whether to enable node-wise positional encodings
+  type: rwse            # RWSE is faster than combined/lap/hks (single PE type vs multiple)
+  dim: 16               # Smaller PE dimension (vs 32 in default) - reduces memory and computation
   rwse:
-    scales: [1, 2, 4]  # Fewer scales (vs [1,2,4,8,16] in default)
+    scales: [1, 2, 4]   # Fewer scales (vs [1,2,4,8,16] in default) - faster computation
 
 relative:
-  type: spd
-  num_buckets: 16    # Fewer buckets (vs 32 in default)
-  max_distance: 5    # Shorter max distance (vs 10 in default)
-  symmetric: true
-
+  enabled: true         # Whether to enable relative (pairwise) positional encodings
+  type: spd             # Relative PE type: "spd" (shortest path distance)
+  num_buckets: 16       # Fewer buckets (vs 32 in default) - reduces embedding size
+  max_distance: 5       # Shorter max distance (vs 10 in default) - faster distance computation
+  symmetric: true       # Whether PE(i,j) == PE(j,i) should hold (symmetric pairwise encodings)

@@ -1,19 +1,24 @@
 # Default positional encoding configuration
+# This config is loaded via defaults: - pe: default in main config files
+# All parameters here become part of cfg.pe in the final config
+
 node:
-  type: combined  # lap, rwse, hks, role, combined
-  dim: 32
+  enabled: true         # Whether to enable node-wise positional encodings
+  type: combined        # Node PE type: "lap" (Laplacian), "rwse" (Random Walk), "hks" (Heat Kernel), "role" (Structural), "combined" (all)
+  dim: 32               # Dimension of node PE embeddings (output size per node)
   lap:
-    k: 16
-    sign_invariant: flip
+    k: 16               # Number of Laplacian eigenvectors to use (for lap PE type)
+    sign_invariant: flip # Sign invariance method: "flip" (random sign flipping), "abs" (absolute value), false (no invariance)
   rwse:
-    scales: [1, 2, 4, 8, 16]
+    scales: [1, 2, 4, 8, 16]  # Random walk scales (time steps) for RWSE PE
   hks:
-    scales: [0.1, 0.5, 1.0, 2.0, 5.0]
+    scales: [0.1, 0.5, 1.0, 2.0, 5.0]  # Heat kernel scales (diffusion times) for HKS PE
   role:
-    features: [degree, clustering, kcore]
+    features: [degree, clustering, kcore]  # Structural role features: degree, clustering coefficient, k-core number
 
 relative:
-  type: spd  # spd, bfs, diffusion, resistance, landmark
-  num_buckets: 32
-  max_distance: 10
-  symmetric: true
+  enabled: true         # Whether to enable relative (pairwise) positional encodings
+  type: spd             # Relative PE type: "spd" (shortest path distance), "bfs" (BFS distance), "diffusion", "resistance", "landmark"
+  num_buckets: 32       # Number of distance buckets for discretizing distances (one-hot encoding size)
+  max_distance: 10      # Maximum graph distance to consider (distances > max_distance are clipped)
+  symmetric: true       # Whether PE(i,j) == PE(j,i) should hold (symmetric pairwise encodings)

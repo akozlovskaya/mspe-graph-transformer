@@ -117,6 +117,11 @@ class ClassificationLoss(nn.Module):
             # Ensure target is float for BCE
             if target.dtype != torch.float:
                 target = target.float()
+            # For BCE, if pred is [B, 2] and target is [B], convert to [B, 1] format
+            if pred.dim() == 2 and pred.size(1) == 2 and target.dim() == 1:
+                # Use only the first class logit for binary classification
+                pred = pred[:, 0:1]  # [B, 2] -> [B, 1]
+                target = target.unsqueeze(1)  # [B] -> [B, 1]
 
         return self.loss_fn(pred, target)
 

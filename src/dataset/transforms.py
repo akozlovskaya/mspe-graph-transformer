@@ -24,7 +24,11 @@ class ApplyNodePE(BaseTransform):
         self.node_pe_config = node_pe_config
         self.cache_dir = cache_dir
         self.enabled = node_pe_config.get("enabled", True)
-        self.types = node_pe_config.get("types", [])
+        # Support both "type" (string) and "types" (list) for backward compatibility
+        if "type" in node_pe_config and "types" not in node_pe_config:
+            self.types = [node_pe_config["type"]]
+        else:
+            self.types = node_pe_config.get("types", [])
         self.dim = node_pe_config.get("dim", 32)
         self.scales = node_pe_config.get("scales", [1, 2, 4, 8])
 
@@ -155,7 +159,11 @@ class ApplyRelativePE(BaseTransform):
         self.relative_pe_config = relative_pe_config
         self.cache_dir = cache_dir
         self.enabled = relative_pe_config.get("enabled", True)
-        self.types = relative_pe_config.get("types", [])
+        # Support both "type" (string) and "types" (list) for backward compatibility
+        if "type" in relative_pe_config and "types" not in relative_pe_config:
+            self.types = [relative_pe_config["type"]]
+        else:
+            self.types = relative_pe_config.get("types", [])
         self.max_distance = relative_pe_config.get("max_distance", 10)
         self.num_buckets = relative_pe_config.get("num_buckets", 16)
 

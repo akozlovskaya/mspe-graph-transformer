@@ -215,7 +215,7 @@ def main(cfg: DictConfig) -> None:
     logger.info(f"Evaluating on {eval_split} split with {len(eval_data)} samples")
 
     # Create dataloader
-    batch_size = cfg.get("batch_size", cfg.training.get("batch_size", 32))
+    batch_size = cfg.get("batch_size", cfg.train.get("batch_size", 32))
     eval_loader = DataLoader(
         eval_data,
         batch_size=batch_size,
